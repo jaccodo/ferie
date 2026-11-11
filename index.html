@@ -52,6 +52,7 @@ h1 small{font-family:var(--f-body);font-size:.75rem;font-weight:600;color:var(--
 .tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;margin-inline:-4px}
 .tabs::-webkit-scrollbar{display:none}
 .tab{flex:none;border:0;background:transparent;color:var(--band-muted);font-weight:600;font-size:.9rem;padding:10px 12px 12px;cursor:pointer;border-bottom:3px solid transparent;display:inline-flex;gap:6px;align-items:center}
+@media (max-width:480px){.tab{padding:10px 8px 12px;font-size:.86rem}}
 .tab[aria-selected="true"]{color:var(--band-fg);border-bottom-color:var(--accent)}
 .tab:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
 .badge{min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:var(--accent);color:var(--on-accent);font-size:.72rem;font-weight:700;display:inline-grid;place-items:center;font-variant-numeric:tabular-nums}
@@ -179,6 +180,22 @@ details.decise summary{cursor:pointer;font-weight:700;color:var(--muted);padding
 .tbl td.num,.tbl th.num{text-align:right;font-variant-numeric:tabular-nums}
 .tbl tr:last-child td{border-bottom:0}
 .tbl .role{font-size:.72rem;color:var(--muted);font-weight:600}
+.rie{background:var(--surface);border:1px solid var(--line);border-radius:14px;margin-bottom:8px}
+.rie summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:12px 14px}
+.rie summary::-webkit-details-marker{display:none}
+.rie .who-col{flex:1;min-width:0}
+.rie .who-col .meta{display:block;margin-top:2px}
+.rie .tot{text-align:right;font-variant-numeric:tabular-nums;line-height:1.1}
+.rie .tot b{font-size:1.4rem;font-family:var(--f-display)}
+.rie .tot span{display:block;font-size:.72rem;color:var(--muted);font-weight:600}
+.rie .chev{color:var(--muted);transition:transform .15s}
+.rie[open] .chev{transform:rotate(90deg)}
+.rie ul{list-style:none;margin:0;padding:0 14px 10px;border-top:1px solid var(--line)}
+.rie li{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px dashed var(--line);font-size:.88rem}
+.rie li:last-child{border-bottom:0}
+.rie li .st{color:var(--muted);font-size:.8rem;white-space:nowrap}
+.rie li .st.att{color:var(--warn)}
+.rie li .st.done{color:var(--good)}
 .rowform{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
 .rowform input{padding:10px 12px;border-radius:11px;border:1px solid var(--line);background:var(--bg);font-size:16px;min-width:0}
 .rowform .full{grid-column:1/-1}
@@ -217,6 +234,7 @@ details.decise summary{cursor:pointer;font-weight:700;color:var(--muted);padding
       <button class="tab" role="tab" data-tab="cal" aria-selected="true">Calendario</button>
       <button class="tab" role="tab" data-tab="mie" aria-selected="false">Le mie</button>
       <button class="tab" role="tab" data-tab="dec" aria-selected="false" id="tabDec" hidden>Da decidere <span class="badge" id="decCount" hidden>0</span></button>
+      <button class="tab" role="tab" data-tab="rie" aria-selected="false" id="tabRie" hidden>Riepilogo</button>
       <button class="tab" role="tab" data-tab="ges" aria-selected="false" id="tabGes" hidden>Gestione</button>
     </nav>
   </div>
@@ -246,6 +264,7 @@ details.decise summary{cursor:pointer;font-weight:700;color:var(--muted);padding
 
     <section id="v-mie" hidden></section>
     <section id="v-dec" hidden></section>
+    <section id="v-rie" hidden></section>
     <section id="v-ges" hidden></section>
   </div>
 </main>
@@ -423,18 +442,47 @@ function conteggio(email, y){
 }
 
 /* ---------- schede ---------- */
-document.querySelectorAll('.tab').forEach(b => b.onclick = () => setTab(b.dataset.tab));
+document.querySelectorAll('.tab').forEach(b => b.onclick = () => { if(b.dataset.tab === tab) return; tabHist.push(tab); navPush(); setTab(b.dataset.tab); });
 function setTab(t){
   tab = t;
   document.querySelectorAll('.tab').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === t));
-  ['cal','mie','dec','ges'].forEach(v => $('v-'+v).hidden = v !== t);
+  ['cal','mie','dec','rie','ges'].forEach(v => $('v-'+v).hidden = v !== t);
+  document.querySelector(`.tab[data-tab="${t}"]`)?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
   render();
 }
+
+/* ---------- tasto "indietro" (Android): torna indietro dentro l'app invece di chiuderla ---------- */
+// Ogni foglio aperto o scheda cambiata aggiunge un passo alla cronologia; "indietro" lo annulla.
+const tabHist = [];
+let navQuiet = false;
+function navPush(){ if(!navQuiet) history.pushState({ ferie: 1 }, ''); }
+function goBack(){
+  navQuiet = true;
+  try{
+    const open = [...document.querySelectorAll('.sheet')].find(s => !s.hidden);
+    if(open){
+      if(open.id === 'reqSheet' && !$('reqBack').hidden) $('reqBack').onclick();
+      else closeSheets();
+      return true;
+    }
+    if(!$('gate').hidden) return false;
+    while(tabHist.length){
+      const t = tabHist.pop();
+      if(t !== tab && (admin || (t !== 'dec' && t !== 'rie' && t !== 'ges'))){ setTab(t); return true; }
+    }
+    if(tab !== 'cal'){ setTab('cal'); return true; }
+    return false;
+  } finally { navQuiet = false; }
+}
+addEventListener('popstate', () => {
+  // Niente da chiudere nell'app: lascio proseguire l'indietro (passi vecchi o uscita dall'app).
+  if(!goBack() && history.state?.ferie) history.back();
+});
 
 function render(){
   if(!me) return;
   $('roleLbl').textContent = admin ? 'titolari' : '';
-  $('tabDec').hidden = !admin; $('tabGes').hidden = !admin;
+  $('tabDec').hidden = !admin; $('tabRie').hidden = !admin; $('tabGes').hidden = !admin;
   $('legendProp').textContent = admin ? 'proposta in attesa' : 'tua proposta in attesa';
   $('fab').lastChild.textContent = admin ? ' Segna ferie' : ' Proponi ferie';
   const pend = R.filter(r => r.stato === 'proposta');
@@ -442,6 +490,7 @@ function render(){
   if(tab === 'cal') renderCal();
   if(tab === 'mie') renderMie();
   if(tab === 'dec') renderDec();
+  if(tab === 'rie') renderRie();
   if(tab === 'ges') renderGes();
   if(dayOpen && !$('daySheet').hidden) openDay(dayOpen);
   if(reqOpen && !$('reqSheet').hidden) openReq(reqOpen);
@@ -640,16 +689,46 @@ function persone(){
   R.forEach(r => { if(!STAFF[r.email] && !list.find(p => p.email === r.email)) list.push({ email: r.email, nome: r.nome || r.email, ruolo: 'dipendente', fuori: true }); });
   return list.sort((a, b) => (a.ruolo === 'titolare') - (b.ruolo === 'titolare') || a.nome.localeCompare(b.nome));
 }
+/* ---------- riepilogo (titolari): giorni goduti da tutti, titolari compresi ---------- */
+// Goduti = ferie confermate nell'anno, sia già fatte sia ancora in programma. A parte quelle in attesa.
+function riepilogo(email, y){
+  const today = TODAY(), fino = `${y}-12-31` < today ? `${y}-12-31` : today;
+  let fatti = 0, prog = 0, att = 0;
+  const righe = [];
+  R.filter(r => r.email === email && r.stato !== 'rifiutata' && giorniNellAnno(r, y) > 0).sort((a, b) => a.dal.localeCompare(b.dal)).forEach(r => {
+    const n = giorniNellAnno(r, y);
+    if(r.stato === 'proposta'){ att += n; righe.push({ r, n, st: 'att' }); return; }
+    const f = fino < `${y}-01-01` ? 0 : giorniNellAnno({ dal: r.dal, al: r.al < fino ? r.al : fino }, y);
+    fatti += f; prog += n - f;
+    righe.push({ r, n, st: f === n ? 'done' : f ? 'mid' : 'prog' });
+  });
+  return { goduti: fatti + prog, fatti, prog, att, righe };
+}
+function renderRie(){
+  if(!admin){ $('v-rie').innerHTML = ''; return; }
+  const y = gesYear, aperti = new Set([...$('v-rie').querySelectorAll('details[open]')].map(d => d.dataset.email));
+  const ppl = persone().map(p => ({ ...p, c: riepilogo(p.email, y) }));
+  const tot = ppl.reduce((s, p) => ({ g: s.g + p.c.goduti, f: s.f + p.c.fatti, p: s.p + p.c.prog, a: s.a + p.c.att }), { g: 0, f: 0, p: 0, a: 0 });
+  const stTxt = { done: 'fatte', mid: 'in corso', prog: 'in programma', att: 'in attesa' };
+  let h = `<h2 class="section-h">Ferie godute</h2>
+    <div class="yearbar"><button class="icon-btn" id="yPrev" type="button" aria-label="Anno precedente">‹</button><b>${y}</b><button class="icon-btn" id="yNext" type="button" aria-label="Anno successivo">›</button><span class="hint">Giorni di calendario, festività comprese.</span></div>
+    <p class="sub">"Godute" sono le ferie confermate: quelle già fatte più quelle in programma. Tocca un nome per vedere i periodi.</p>
+    <div class="sum"><div class="stat"><b>${tot.g}</b><span>giorni goduti in tutto</span></div><div class="stat"><b>${tot.f}</b><span>già fatti</span></div><div class="stat"><b>${tot.p}</b><span>in programma</span></div>${tot.a ? `<div class="stat"><b>${tot.a}</b><span>in attesa</span></div>` : ''}</div>`;
+  h += ppl.map(p => {
+    const c = p.c;
+    const dett = [c.fatti ? `${c.fatti} fatti` : '', c.prog ? `${c.prog} in programma` : '', c.att ? `${c.att} in attesa` : ''].filter(Boolean).join(' · ') || 'nessuna ferie segnata';
+    const lista = c.righe.length ? c.righe.map(x => `<li><span>${esc(rangeTxt(x.r))} · ${giorni(x.n)}</span><span class="st ${x.st}">${stTxt[x.st]}</span></li>`).join('') : `<li><span class="meta">Nessuna ferie nel ${y}.</span></li>`;
+    return `<details class="rie" data-email="${esc(p.email)}"${aperti.has(p.email) ? ' open' : ''}><summary><i class="dot" style="--c:${colorOf(p.email)}"></i><div class="who-col"><b>${esc(p.nome)}</b>${p.ruolo === 'titolare' ? ' <span class="role meta" style="display:inline">· titolare</span>' : ''}<span class="meta">${dett}</span></div><div class="tot"><b>${c.goduti}</b><span>goduti</span></div><span class="chev" aria-hidden="true">›</span></summary><ul>${lista}</ul></details>`;
+  }).join('');
+  $('v-rie').innerHTML = h;
+  $('yPrev').onclick = () => { gesYear--; renderRie(); };
+  $('yNext').onclick = () => { gesYear++; renderRie(); };
+}
+
 function renderGes(){
   if(!admin){ $('v-ges').innerHTML = ''; return; }
   const ppl = persone();
-  const y = gesYear;
-  let h = `<h2 class="section-h">Giorni di ferie</h2>
-    <div class="yearbar"><button class="icon-btn" id="yPrev" type="button" aria-label="Anno precedente">‹</button><b>${y}</b><button class="icon-btn" id="yNext" type="button" aria-label="Anno successivo">›</button><span class="hint">Giorni di calendario segnati, festività comprese.</span></div>
-    <table class="tbl"><thead><tr><th>Persona</th><th class="num">Confermati</th><th class="num">In attesa</th></tr></thead><tbody>
-    ${ppl.map(p => { const c = conteggio(p.email, y); return `<tr><td><span class="person"><i class="dot" style="--c:${colorOf(p.email)}"></i>${esc(p.nome)}</span>${p.ruolo === 'titolare' ? '<span class="role">titolare</span>' : ''}</td><td class="num"><b>${c.conf}</b></td><td class="num">${c.att || '–'}</td></tr>`; }).join('')}
-    </tbody></table>`;
-
+  let h = '';
   const blocchi = [...BLOCCHI].sort((a, b) => a.dal.localeCompare(b.dal));
   const futuri = blocchi.filter(b => b.al >= TODAY());
   h += `<h2 class="section-h">Periodi bloccati</h2><p class="sub">In questi giorni i dipendenti non possono proporre ferie. Li vedono tutti sul calendario.</p>
@@ -670,8 +749,6 @@ function renderGes(){
     </form>`;
   $('v-ges').innerHTML = h;
 
-  $('yPrev').onclick = () => { gesYear--; renderGes(); };
-  $('yNext').onclick = () => { gesYear++; renderGes(); };
   $('bDal').oninput = () => { if(!$('bAl').value || $('bAl').value < $('bDal').value) $('bAl').value = $('bDal').value; };
   $('blkForm').onsubmit = async e => {
     e.preventDefault();
@@ -780,7 +857,10 @@ $('propForm').onsubmit = async e => {
 };
 
 /* ---------- fogli ---------- */
-function showSheet(id){ document.querySelectorAll('.sheet').forEach(s => s.hidden = s.id !== id); }
+function showSheet(id){
+  if($(id).hidden) navPush();   // solo quando si apre davvero un foglio nuovo, non quando si aggiorna
+  document.querySelectorAll('.sheet').forEach(s => s.hidden = s.id !== id);
+}
 function closeSheets(){ document.querySelectorAll('.sheet').forEach(s => s.hidden = true); dayOpen = null; reqOpen = null; }
 document.querySelectorAll('.sheet').forEach(s => s.addEventListener('click', e => { if(e.target.closest('[data-close]')) closeSheets(); }));
 document.addEventListener('keydown', e => { if(e.key === 'Escape') closeSheets(); });
@@ -802,7 +882,7 @@ function signedIn(user, isAdmin){
   me = user; admin = isAdmin;
   refreshMe();
   $('fab').hidden = false;
-  if(!admin && (tab === 'dec' || tab === 'ges')) setTab('cal'); else render();
+  if(!admin && (tab === 'dec' || tab === 'rie' || tab === 'ges')) setTab('cal'); else render();
 }
 function refreshMe(){
   if(!me) return;
