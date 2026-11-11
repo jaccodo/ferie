@@ -139,6 +139,15 @@ details.decise summary{cursor:pointer;font-weight:700;color:var(--muted);padding
 .err{color:var(--bad);font-size:.85rem;margin-top:10px}
 .daylist{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}
 .daylist li{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:12px;background:var(--soft)}
+.daylist li:has(.dayitem){padding:0}
+.dayitem{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:12px;border:0;border-radius:12px;background:transparent;cursor:pointer;text-align:left}
+.dayitem:hover{background:color-mix(in srgb,var(--fg) 5%,transparent)}
+.dayitem:focus-visible{outline:2px solid var(--accent);outline-offset:0}
+.todo{color:var(--accent-fg);background:var(--accent-soft);padding:1px 7px;border-radius:999px;font-size:.75rem}
+.linkback{border:0;background:transparent;color:var(--muted);font-weight:700;font-size:.85rem;padding:0 0 6px;cursor:pointer}
+.day .who[data-id]{cursor:pointer}
+.day .who[data-id]:hover{filter:brightness(1.15)}
+.panel .card{margin-bottom:0}
 .daylist .person{font-weight:700}
 .menu-email{color:var(--muted);font-size:.86rem;margin:2px 0 14px;word-break:break-all}
 .menu-btns{display:flex;flex-direction:column;gap:8px}
@@ -208,6 +217,17 @@ details.decise summary{cursor:pointer;font-weight:700;color:var(--muted);padding
     <h3 id="dayTitle"></h3>
     <ul class="daylist" id="dayList"></ul>
     <div class="actions"><button class="btn accent" id="dayPropose" type="button">Proponi ferie da questo giorno</button></div>
+  </div>
+</div>
+
+<!-- foglio: una ferie -->
+<div class="sheet" id="reqSheet" hidden>
+  <div class="scrim" data-close></div>
+  <div class="panel" role="dialog" aria-modal="true" aria-labelledby="reqTitle">
+    <button class="x" type="button" data-close aria-label="Chiudi">×</button>
+    <button class="linkback" id="reqBack" type="button" hidden>‹ Torna al giorno</button>
+    <h3 id="reqTitle"></h3>
+    <div id="reqBody" style="margin-top:12px"></div>
   </div>
 </div>
 
@@ -334,6 +354,7 @@ function render(){
   if(tab === 'mie') renderMie();
   if(tab === 'dec') renderDec();
   if(dayOpen && !$('daySheet').hidden) openDay(dayOpen);
+  if(reqOpen && !$('reqSheet').hidden) openReq(reqOpen);
 }
 
 /* ---------- calendario ---------- */
@@ -354,24 +375,52 @@ function renderCal(){
     if(i === 35 && d.getMonth() !== month.getMonth()) break;
     const s = iso(d);
     const here = vis.filter(r => r.dal <= s && s <= r.al);
-    const chips = here.slice(0, here.length > max ? max-1 : max).map(r => `<span class="who${r.stato==='proposta' ? ' prop' : ''}" style="--c:${colorOf(r.email)}">${esc(firstName(r.nome))}</span>`).join('');
+    const chips = here.slice(0, here.length > max ? max-1 : max).map(r => `<span class="who${r.stato==='proposta' ? ' prop' : ''}" data-id="${r.id}" style="--c:${colorOf(r.email)}">${esc(firstName(r.nome))}</span>`).join('');
     const more = here.length > max ? `<span class="more">+${here.length - max + 1}</span>` : '';
     const cls = ['day', d.getMonth() !== month.getMonth() ? 'out' : '', s === today ? 'today' : '', s < today ? 'past' : ''].join(' ');
     const lbl = `${fLong.format(d)}: ${here.length ? here.map(r => firstName(r.nome)).join(', ') + ' assenti' : 'nessuno in ferie'}`;
     h += `<button type="button" class="${cls}" data-day="${s}" aria-label="${esc(lbl)}"><span class="n">${d.getDate()}</span>${chips}${more}</button>`;
   }
   $('grid').innerHTML = h;
-  $('grid').querySelectorAll('[data-day]').forEach(b => b.onclick = () => openDay(b.dataset.day));
+  // Tocchi un nome → apri quella ferie; tocchi il resto del giorno → elenco del giorno.
+  $('grid').querySelectorAll('[data-day]').forEach(b => b.onclick = e => {
+    const chip = e.target.closest('.who[data-id]');
+    if(chip) openReq(chip.dataset.id); else openDay(b.dataset.day);
+  });
 }
 
 function openDay(s){
   dayOpen = s;
   $('dayTitle').textContent = fLong.format(parse(s)).replace(/^./, c => c.toUpperCase());
   const here = R.filter(visibleOnCal).filter(r => r.dal <= s && s <= r.al);
-  $('dayList').innerHTML = here.length ? here.map(r => `<li><span class="person"><i class="dot" style="--c:${colorOf(r.email)}"></i>${esc(r.nome)}</span><span class="meta">${r.stato === 'proposta' ? 'in attesa · ' : ''}${esc(rangeTxt(r))}</span></li>`).join('')
+  $('dayList').innerHTML = here.length ? here.map(r => `<li><button type="button" class="dayitem" data-id="${r.id}"><span class="person"><i class="dot" style="--c:${colorOf(r.email)}"></i>${esc(r.nome)}</span><span class="meta">${r.stato === 'proposta' ? (admin ? '<b class="todo">da decidere</b> · ' : 'in attesa · ') : ''}${esc(rangeTxt(r))} ›</span></button></li>`).join('')
     : '<li><span class="meta">Nessuno in ferie in questo giorno.</span></li>';
+  $('dayList').querySelectorAll('[data-id]').forEach(b => b.onclick = () => openReq(b.dataset.id));
   $('dayPropose').hidden = s < TODAY();
   showSheet('daySheet');
+}
+
+// Scheda di una singola ferie: i titolari possono confermarla o no da qui, senza passare da "Da decidere".
+let reqOpen = null;
+function openReq(id){
+  const r = R.find(x => x.id === id);
+  if(!r || !visibleOnCal(r) && !(admin && r.stato === 'rifiutata')){ closeSheets(); return; }
+  const motivo = $('reqBody').querySelector('[data-motivo]')?.value || '';
+  const back = dayOpen, same = reqOpen === id;
+  reqOpen = id;
+  $('reqTitle').textContent = `Ferie di ${firstName(r.nome)}`;
+  if(admin){
+    $('reqBody').innerHTML = adminCard(r);
+    wireAdminCards($('reqBody'));
+    const m = $('reqBody').querySelector('[data-motivo]'); if(m && same) m.value = motivo;
+  } else {
+    $('reqBody').innerHTML = `<div class="card"><div class="card-top"><div><div class="person"><i class="dot" style="--c:${colorOf(r.email)}"></i>${esc(r.nome)}</div><div class="range">${esc(rangeTxt(r))}</div><div class="meta">${daysTxt(r)}</div></div><span class="pill ${r.stato}">${statoTxt(r)}</span></div>
+      ${r.uid === me.uid && r.stato === 'proposta' ? `<div class="meta" style="margin-top:8px">La decidiamo ${esc(nextWednesday())}. La trovi anche in "Le mie".</div>` : ''}</div>`;
+  }
+  $('reqBack').hidden = !back;
+  $('reqBack').onclick = () => openDay(back);
+  showSheet('reqSheet');
+  dayOpen = back;
 }
 $('dayPropose').onclick = () => { closeSheets(); openPropose(dayOpen); };
 
@@ -415,29 +464,36 @@ function renderDec(){
   if(!admin){ $('v-dec').innerHTML = ''; return; }
   const pend = R.filter(r => r.stato === 'proposta').sort((a, b) => a.dal.localeCompare(b.dal));
   const decise = R.filter(r => r.stato !== 'proposta' && r.al >= TODAY()).sort((a, b) => a.dal.localeCompare(b.dal));
-  let h = `<h2 class="section-h">Proposte in attesa</h2><p class="sub">Da decidere ${esc(nextWednesday())}. Quando confermi, le ferie vanno anche nel Google Calendar "Ferie / Eventi".</p>`;
-  h += pend.length ? pend.map(r => `<div class="card" data-id="${r.id}">
-      <div class="card-top"><div><div class="person"><i class="dot" style="--c:${colorOf(r.email)}"></i>${esc(r.nome)}</div><div class="range">${esc(rangeTxt(r))}</div><div class="meta">${daysTxt(r)} · proposta il ${esc(fWhen.format(new Date(r.creata)))}</div></div><span class="pill proposta">In attesa</span></div>
-      ${NOTE[r.id] ? `<div class="note"><b>Nota (solo per voi)</b>${esc(NOTE[r.id])}</div>` : ''}
+  let h = `<h2 class="section-h">Proposte in attesa</h2><p class="sub">Da decidere ${esc(nextWednesday())}. Quando confermi, le ferie vanno anche nel Google Calendar "Ferie / Eventi". Puoi decidere anche toccando una ferie sul calendario.</p>`;
+  h += pend.length ? pend.map(adminCard).join('') : `<div class="empty"><b>Nessuna proposta in attesa</b>Le nuove richieste compariranno qui.</div>`;
+  if(decise.length) h += `<details class="decise"><summary>Già decise, ancora da fare (${decise.length})</summary>${decise.map(adminCard).join('')}</details>`;
+  $('v-dec').innerHTML = h;
+  wireAdminCards($('v-dec'));
+}
+
+// Scheda di una richiesta per i titolari: in attesa → Conferma / Non confermare; decisa → Rimetti in attesa / Elimina.
+function adminCard(r){
+  const head = `<div class="card-top"><div><div class="person"><i class="dot" style="--c:${colorOf(r.email)}"></i>${esc(r.nome)}</div><div class="range">${esc(rangeTxt(r))}</div><div class="meta">${daysTxt(r)} · ${r.stato !== 'proposta' && r.decisaIl ? 'decisa il ' + esc(fWhen.format(new Date(r.decisaIl))) : 'proposta il ' + esc(fWhen.format(new Date(r.creata)))}</div></div><span class="pill ${r.stato}">${statoTxt(r)}</span></div>
+      ${NOTE[r.id] ? `<div class="note"><b>Nota (solo per voi)</b>${esc(NOTE[r.id])}</div>` : ''}`;
+  if(r.stato === 'proposta') return `<div class="card" data-id="${r.id}">${head}
       ${overlapHtml(r)}
       <div class="actions">
         <button class="btn ok" data-ok type="button">Conferma</button>
         <button class="btn no" data-no type="button">Non confermare</button>
         <input class="motivo" data-motivo placeholder="Motivo (se non confermi, lo vede la persona)" maxlength="300">
       </div>
-    </div>`).join('') : `<div class="empty"><b>Nessuna proposta in attesa</b>Le nuove richieste compariranno qui.</div>`;
-  if(decise.length) h += `<details class="decise"><summary>Già decise, ancora da fare (${decise.length})</summary>${decise.map(r => `<div class="card" data-id="${r.id}">
-      <div class="card-top"><div><div class="person"><i class="dot" style="--c:${colorOf(r.email)}"></i>${esc(r.nome)}</div><div class="range">${esc(rangeTxt(r))}</div><div class="meta">${daysTxt(r)}${r.decisaIl ? ' · decisa il ' + esc(fWhen.format(new Date(r.decisaIl))) : ''}</div></div><span class="pill ${r.stato}">${statoTxt(r)}</span></div>
-      ${NOTE[r.id] ? `<div class="note"><b>Nota (solo per voi)</b>${esc(NOTE[r.id])}</div>` : ''}
+    </div>`;
+  return `<div class="card" data-id="${r.id}">${head}
       ${r.stato === 'rifiutata' && r.motivo ? `<div class="note"><b>Motivo</b>${esc(r.motivo)}</div>` : ''}
       <div class="actions">
         ${r.stato === 'confermata' && !r.eventoId ? `<span class="calwarn">Non è nel Google Calendar</span><button class="btn ghost" data-cal type="button">Aggiungi al calendario</button>` : ''}
         <button class="btn ghost" data-back type="button">Rimetti in attesa</button>
         <button class="btn no" data-del type="button">Elimina</button>
       </div>
-    </div>`).join('')}</details>`;
-  $('v-dec').innerHTML = h;
-  $('v-dec').querySelectorAll('.card[data-id]').forEach(c => {
+    </div>`;
+}
+function wireAdminCards(box){
+  box.querySelectorAll('.card[data-id]').forEach(c => {
     const r = R.find(x => x.id === c.dataset.id); if(!r) return;
     const btns = [...c.querySelectorAll('button')];
     const busy = on => btns.forEach(b => b.disabled = on);
@@ -523,7 +579,7 @@ $('propForm').onsubmit = async e => {
 
 /* ---------- fogli ---------- */
 function showSheet(id){ document.querySelectorAll('.sheet').forEach(s => s.hidden = s.id !== id); }
-function closeSheets(){ document.querySelectorAll('.sheet').forEach(s => s.hidden = true); dayOpen = null; }
+function closeSheets(){ document.querySelectorAll('.sheet').forEach(s => s.hidden = true); dayOpen = null; reqOpen = null; }
 document.querySelectorAll('.sheet').forEach(s => s.addEventListener('click', e => { if(e.target.closest('[data-close]')) closeSheets(); }));
 document.addEventListener('keydown', e => { if(e.key === 'Escape') closeSheets(); });
 $('acct').onclick = () => showSheet('menuSheet');
