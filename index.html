@@ -1,0 +1,708 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ferie Cactus</title>
+<meta name="theme-color" content="#1f3d2b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ferie">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: banda verde in alto con titolo e schede (Calendario, Le mie richieste, Da decidere), sotto il contenuto della scheda; pulsante "Proponi ferie" fisso; fogli dal basso per giorno e proposta. */
+:root{
+  --bg:#f3f4ef; --surface:#ffffff; --fg:#17211b; --muted:#5f6b63; --line:#dfe3db; --soft:#eef1ea;
+  --band:#1f3d2b; --band-fg:#eef5ef; --band-muted:#a9c4b1;
+  --accent:#e8a83a; --accent-soft:#fbefd6; --accent-fg:#6b4708; --on-accent:#231703;
+  --good:#1f7a4f; --good-soft:#e1f2e8; --bad:#b3261e; --bad-soft:#fbe5e3; --warn:#8a5a00; --warn-soft:#fdf0d3;
+  --p0:#2f7d5b; --p1:#c0562f; --p2:#3b6fb6; --p3:#a8437f; --p4:#8a7a18; --p5:#6a52b8; --p6:#1f8a99; --p7:#b5435a; --p8:#5d7a2a;
+  --f-display:"Fraunces", Georgia, "Times New Roman", serif;
+  --f-body:"Manrope", "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1511; --surface:#18201b; --fg:#e8eee9; --muted:#9aa89f; --line:#2a352e; --soft:#1e2822;
+  --band:#132a1d; --band-fg:#e8f2ea; --band-muted:#8fb09a;
+  --accent:#f0b955; --accent-soft:#3a2c10; --accent-fg:#f5d08a; --on-accent:#231703;
+  --good:#5cc995; --good-soft:#15301f; --bad:#f08a80; --bad-soft:#3a1916; --warn:#f0c15f; --warn-soft:#382a10;
+  --p0:#5cc095; --p1:#ec8a62; --p2:#79a4e6; --p3:#df7fb6; --p4:#cfbf55; --p5:#a591ea; --p6:#5cc3d1; --p7:#ea8196; --p8:#9fc05e; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1511; --surface:#18201b; --fg:#e8eee9; --muted:#9aa89f; --line:#2a352e; --soft:#1e2822;
+  --band:#132a1d; --band-fg:#e8f2ea; --band-muted:#8fb09a;
+  --accent:#f0b955; --accent-soft:#3a2c10; --accent-fg:#f5d08a; --on-accent:#231703;
+  --good:#5cc995; --good-soft:#15301f; --bad:#f08a80; --bad-soft:#3a1916; --warn:#f0c15f; --warn-soft:#382a10;
+  --p0:#5cc095; --p1:#ec8a62; --p2:#79a4e6; --p3:#df7fb6; --p4:#cfbf55; --p5:#a591ea; --p6:#5cc3d1; --p7:#ea8196; --p8:#9fc05e; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.4;-webkit-tap-highlight-color:transparent}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--band)}
+button,input,textarea{font:inherit;color:inherit}
+.wrap{max-width:860px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--band);color:var(--band-fg);box-shadow:0 6px 18px -12px rgba(0,0,0,.55)}
+header .wrap{padding-block:14px 0;display:flex;flex-direction:column;gap:10px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+h1{font-family:var(--f-display);font-weight:700;font-size:1.45rem;margin:0;letter-spacing:-.01em}
+h1 small{font-family:var(--f-body);font-size:.75rem;font-weight:600;color:var(--band-muted);margin-left:6px;letter-spacing:0}
+.acct{width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:var(--band-fg);font-weight:700;cursor:pointer;display:grid;place-items:center}
+.acct:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;margin-inline:-4px}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:none;border:0;background:transparent;color:var(--band-muted);font-weight:600;font-size:.9rem;padding:10px 12px 12px;cursor:pointer;border-bottom:3px solid transparent;display:inline-flex;gap:6px;align-items:center}
+.tab[aria-selected="true"]{color:var(--band-fg);border-bottom-color:var(--accent)}
+.tab:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.badge{min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:var(--accent);color:var(--on-accent);font-size:.72rem;font-weight:700;display:inline-grid;place-items:center;font-variant-numeric:tabular-nums}
+main .wrap{padding-block:14px 120px}
+.banner{margin:0 0 12px;padding:10px 12px;border-radius:12px;font-size:.85rem;background:var(--warn-soft);color:var(--warn)}
+
+/* calendario */
+.monthbar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.monthbar h2{font-family:var(--f-display);font-weight:600;font-size:1.25rem;margin:0;text-transform:capitalize}
+.nav{display:flex;gap:6px}
+.icon-btn{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--surface);cursor:pointer;display:grid;place-items:center;font-size:1.1rem}
+.txt-btn{height:38px;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-weight:600;font-size:.85rem}
+.icon-btn:focus-visible,.txt-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}
+.dow{font-size:.72rem;font-weight:700;color:var(--muted);text-align:center;padding:2px 0 4px;text-transform:uppercase;letter-spacing:.04em}
+.day{min-height:78px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:4px 3px 5px;cursor:pointer;display:flex;flex-direction:column;gap:2px;text-align:left;overflow:hidden}
+.day:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.day.out{opacity:.4}
+.day .n{font-size:.78rem;font-weight:700;padding-left:3px;font-variant-numeric:tabular-nums;color:var(--muted)}
+.day.today{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.day.today .n{color:var(--accent-fg)}
+.day.past .n{opacity:.6}
+.who{font-size:.66rem;font-weight:700;line-height:1.25;padding:1px 4px;border-radius:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--c);background:color-mix(in srgb,var(--c) 16%,transparent);border-left:3px solid var(--c)}
+.who.prop{background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--c) 12%,transparent) 0 4px,transparent 4px 8px);border:1px dashed var(--c);border-left-width:3px}
+.more{font-size:.65rem;color:var(--muted);font-weight:700;padding-left:4px}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:12px;font-size:.78rem;color:var(--muted);align-items:center}
+.legend .who{display:inline-block;font-size:.72rem}
+@media (min-width:700px){ .day{min-height:96px;padding:6px 5px} .who{font-size:.72rem} }
+
+/* schede richieste */
+.section-h{font-family:var(--f-display);font-weight:600;font-size:1.15rem;margin:18px 0 8px}
+.section-h:first-child{margin-top:4px}
+.sub{color:var(--muted);font-size:.85rem;margin:-4px 0 12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:10px}
+.card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.person{display:flex;align-items:center;gap:8px;font-weight:700}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--c);flex:none}
+.range{font-weight:700;font-size:1rem;margin-top:4px}
+.meta{color:var(--muted);font-size:.8rem;margin-top:2px}
+.pill{flex:none;font-size:.72rem;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap}
+.pill.proposta{background:var(--accent-soft);color:var(--accent-fg)}
+.pill.confermata{background:var(--good-soft);color:var(--good)}
+.pill.rifiutata{background:var(--bad-soft);color:var(--bad)}
+.note{margin-top:10px;padding:8px 10px;border-radius:10px;background:var(--soft);font-size:.86rem;white-space:pre-wrap}
+.note b{display:block;font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:2px}
+.overlap{margin-top:10px;font-size:.84rem}
+.overlap.none{color:var(--good)}
+.overlap ul{margin:4px 0 0;padding-left:18px}
+.overlap.some{color:var(--warn)}
+.overlap li span{color:var(--fg)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;align-items:center}
+.btn{height:42px;padding:0 16px;border-radius:11px;border:0;background:var(--band);color:var(--band-fg);font-weight:700;cursor:pointer}
+.btn.ok{background:var(--good);color:#fff}
+.btn.no{background:var(--bad-soft);color:var(--bad)}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--fg)}
+.btn.accent{background:var(--accent);color:var(--on-accent)}
+.btn:disabled{opacity:.55;cursor:default}
+.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.motivo{flex:1 1 220px;height:42px;padding:0 12px;border-radius:11px;border:1px solid var(--line);background:var(--bg);font-size:16px;min-width:0}
+.empty{text-align:center;color:var(--muted);padding:34px 12px;background:var(--surface);border:1px dashed var(--line);border-radius:14px}
+.empty b{display:block;color:var(--fg);font-size:1rem;margin-bottom:4px}
+details.decise{margin-top:18px}
+details.decise summary{cursor:pointer;font-weight:700;color:var(--muted);padding:6px 0}
+.calwarn{color:var(--warn);font-size:.8rem;font-weight:600}
+
+/* pulsante proponi */
+.fab{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:max(18px,env(safe-area-inset-bottom,0px));z-index:6;height:54px;padding:0 20px 0 16px;border-radius:999px;border:0;background:var(--accent);color:var(--on-accent);font-weight:700;font-size:.98rem;cursor:pointer;box-shadow:0 10px 24px -10px rgba(0,0,0,.5);display:flex;align-items:center;gap:8px}
+.fab svg{width:22px;height:22px}
+.fab:focus-visible{outline:3px solid var(--band);outline-offset:3px}
+
+/* fogli */
+.sheet{position:fixed;inset:0;z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.sheet .scrim{position:absolute;inset:0;background:rgba(0,0,0,.42)}
+.panel{position:relative;width:100%;max-width:560px;max-height:88vh;overflow:auto;background:var(--surface);border-radius:20px 20px 0 0;padding:18px 18px max(20px,env(safe-area-inset-bottom,0px));box-shadow:0 -10px 30px -10px rgba(0,0,0,.4)}
+@media (min-width:700px){ .sheet{align-items:center} .panel{border-radius:20px} }
+.panel h3{font-family:var(--f-display);font-weight:600;font-size:1.25rem;margin:0 0 4px}
+.panel .x{position:absolute;right:12px;top:12px;width:36px;height:36px;border-radius:50%;border:0;background:var(--soft);cursor:pointer;font-size:20px;line-height:1}
+.field{display:flex;flex-direction:column;gap:5px;margin-top:14px}
+.field label{font-size:.8rem;font-weight:700;color:var(--muted)}
+.field input,.field textarea{width:100%;padding:11px 12px;border-radius:11px;border:1px solid var(--line);background:var(--bg);font-size:16px}
+.field textarea{min-height:84px;resize:vertical}
+.field input:focus-visible,.field textarea:focus-visible,.motivo:focus-visible{outline:2px solid var(--accent);outline-offset:0;border-color:transparent}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hint{font-size:.78rem;color:var(--muted)}
+.err{color:var(--bad);font-size:.85rem;margin-top:10px}
+.daylist{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}
+.daylist li{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:12px;background:var(--soft)}
+.daylist .person{font-weight:700}
+.menu-email{color:var(--muted);font-size:.86rem;margin:2px 0 14px;word-break:break-all}
+.menu-btns{display:flex;flex-direction:column;gap:8px}
+
+/* accesso */
+.gate{position:fixed;inset:0;z-index:30;background:var(--band);color:var(--band-fg);display:grid;place-items:center;padding:24px;text-align:center}
+.gate > div{max-width:380px}
+.gate h2{font-family:var(--f-display);font-size:1.7rem;margin:0 0 8px}
+.gate p{color:var(--band-muted);margin:0 0 20px}
+.gate .btn{background:var(--accent);color:var(--on-accent);height:48px;padding:0 22px}
+.gate .err{color:#ffb4ab}
+.toast{position:fixed;left:50%;bottom:calc(86px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:40;background:var(--fg);color:var(--bg);padding:11px 16px;border-radius:12px;font-size:.88rem;font-weight:600;max-width:calc(100% - 32px);box-shadow:0 10px 24px -10px rgba(0,0,0,.5)}
+.offline{position:fixed;left:0;right:0;bottom:0;z-index:7;background:var(--warn-soft);color:var(--warn);font-size:.8rem;text-align:center;padding:6px 12px max(6px,env(safe-area-inset-bottom,0px))}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="top">
+      <h1>Ferie <small id="roleLbl"></small></h1>
+      <button class="acct" id="acct" type="button" aria-label="Account">?</button>
+    </div>
+    <nav class="tabs" role="tablist">
+      <button class="tab" role="tab" data-tab="cal" aria-selected="true">Calendario</button>
+      <button class="tab" role="tab" data-tab="mie" aria-selected="false">Le mie</button>
+      <button class="tab" role="tab" data-tab="dec" aria-selected="false" id="tabDec" hidden>Da decidere <span class="badge" id="decCount" hidden>0</span></button>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <div id="notice"></div>
+
+    <section id="v-cal">
+      <div class="monthbar">
+        <h2 id="monthLbl"></h2>
+        <div class="nav">
+          <button class="txt-btn" id="todayBtn" type="button">Oggi</button>
+          <button class="icon-btn" id="prevBtn" type="button" aria-label="Mese precedente">‹</button>
+          <button class="icon-btn" id="nextBtn" type="button" aria-label="Mese successivo">›</button>
+        </div>
+      </div>
+      <div class="grid" id="grid"></div>
+      <div class="legend">
+        <span><span class="who" style="--c:var(--p0)">Nome</span> ferie confermate</span>
+        <span><span class="who prop" style="--c:var(--p0)">Nome</span> <span id="legendProp">tua proposta in attesa</span></span>
+      </div>
+    </section>
+
+    <section id="v-mie" hidden></section>
+    <section id="v-dec" hidden></section>
+  </div>
+</main>
+
+<button class="fab" id="fab" type="button" hidden>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+  Proponi ferie
+</button>
+
+<!-- foglio: giorno -->
+<div class="sheet" id="daySheet" hidden>
+  <div class="scrim" data-close></div>
+  <div class="panel" role="dialog" aria-modal="true" aria-labelledby="dayTitle">
+    <button class="x" type="button" data-close aria-label="Chiudi">×</button>
+    <h3 id="dayTitle"></h3>
+    <ul class="daylist" id="dayList"></ul>
+    <div class="actions"><button class="btn accent" id="dayPropose" type="button">Proponi ferie da questo giorno</button></div>
+  </div>
+</div>
+
+<!-- foglio: proposta -->
+<div class="sheet" id="propSheet" hidden>
+  <div class="scrim" data-close></div>
+  <form class="panel" id="propForm" role="dialog" aria-modal="true" aria-labelledby="propTitle" novalidate>
+    <button class="x" type="button" data-close aria-label="Chiudi">×</button>
+    <h3 id="propTitle">Proponi un periodo di ferie</h3>
+    <p class="hint" id="propWed"></p>
+    <div class="row2">
+      <div class="field"><label for="fDal">Dal</label><input type="date" id="fDal" required></div>
+      <div class="field"><label for="fAl">Al (compreso)</label><input type="date" id="fAl" required></div>
+    </div>
+    <div class="overlap" id="propOverlap" hidden></div>
+    <div class="field">
+      <label for="fNota">Nota per i titolari (facoltativa)</label>
+      <textarea id="fNota" maxlength="1000" placeholder="Es. matrimonio di mia sorella, posso spostare di qualche giorno…"></textarea>
+      <span class="hint">La leggono solo i titolari, i colleghi non la vedono.</span>
+    </div>
+    <p class="err" id="propErr" hidden></p>
+    <div class="actions"><button class="btn accent" type="submit" id="propSend">Invia proposta</button><button class="btn ghost" type="button" data-close>Annulla</button></div>
+  </form>
+</div>
+
+<!-- foglio: account -->
+<div class="sheet" id="menuSheet" hidden>
+  <div class="scrim" data-close></div>
+  <div class="panel" role="dialog" aria-modal="true" aria-labelledby="menuTitle">
+    <button class="x" type="button" data-close aria-label="Chiudi">×</button>
+    <h3 id="menuTitle">Account</h3>
+    <p class="menu-email" id="m-email"></p>
+    <div class="menu-btns">
+      <button class="btn ghost" id="demoRole" type="button" hidden>Cambia ruolo (prova)</button>
+      <button class="btn ghost" id="logoutBtn" type="button">Esci</button>
+    </div>
+  </div>
+</div>
+
+<div class="gate" id="gate">
+  <div id="gate-loading"><h2>Ferie</h2><p id="gate-loading-msg">Apro il calendario…</p></div>
+  <div id="gate-login" hidden>
+    <h2>Ferie</h2>
+    <p>Accedi con il tuo account Google per vedere il calendario e proporre le tue ferie.</p>
+    <button class="btn" id="loginBtn" type="button">Accedi con Google</button>
+    <p class="err" id="gate-login-err" hidden></p>
+  </div>
+  <div id="gate-denied" hidden>
+    <h2>Accesso non abilitato</h2>
+    <p>L'account <b id="gate-email"></b> non è tra quelli abilitati. Chiedi ai titolari di aggiungerlo, oppure entra con un altro account.</p>
+    <button class="btn" id="switchBtn" type="button">Usa un altro account</button>
+  </div>
+  <div id="gate-error" hidden>
+    <h2>Qualcosa non va</h2>
+    <p id="gate-error-msg">Il calendario non è raggiungibile.</p>
+    <button class="btn" type="button" onclick="location.reload()">Riprova</button>
+  </div>
+</div>
+
+<div class="offline" id="offline" hidden>Sei senza internet: quello che vedi potrebbe non essere aggiornato.</div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script type="module">
+/* ---------- impostazioni ---------- */
+// Calendario Google condiviso dove vanno le ferie confermate ("Calendario Ferie / Eventi").
+const CALENDAR_ID = '485f83f667e06b8fb7c089096f1d001d41afa4b7b256ad2b696866a70d862a8d@group.calendar.google.com';
+
+/* ---------- utilità ---------- */
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad = n => String(n).padStart(2, '0');
+const iso = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parse = s => { const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); };
+const addDays = (s, n) => { const d = parse(s); d.setDate(d.getDate()+n); return iso(d); };
+const TODAY = () => iso(new Date());
+const nDays = r => Math.round((parse(r.al) - parse(r.dal)) / 864e5) + 1;
+const fDay = new Intl.DateTimeFormat('it-IT', { weekday:'short', day:'numeric', month:'short' });
+const fLong = new Intl.DateTimeFormat('it-IT', { weekday:'long', day:'numeric', month:'long' });
+const fMonth = new Intl.DateTimeFormat('it-IT', { month:'long', year:'numeric' });
+const fWhen = new Intl.DateTimeFormat('it-IT', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
+const rangeTxt = r => r.dal === r.al ? fDay.format(parse(r.dal)) : `${fDay.format(parse(r.dal))} → ${fDay.format(parse(r.al))}${parse(r.al).getFullYear() !== new Date().getFullYear() ? ' ' + parse(r.al).getFullYear() : ''}`;
+const daysTxt = r => { const n = nDays(r); return n === 1 ? '1 giorno' : `${n} giorni`; };
+const overlaps = (a, b) => a.dal <= b.al && b.dal <= a.al;
+const firstName = s => String(s || '').trim().split(/\s+/)[0] || '?';
+const colorOf = key => { let h = 0; for(const ch of String(key)) h = (h*31 + ch.charCodeAt(0)) >>> 0; return `var(--p${h % 9})`; };
+function nextWednesday(){
+  const d = new Date(); const diff = (3 - d.getDay() + 7) % 7; d.setDate(d.getDate() + diff);
+  return `nella riunione di ${fLong.format(d)}${diff === 0 ? ' (oggi)' : ''}`;
+}
+let toastT;
+function toast(msg){ const t = $('toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, 4200); }
+const lsGet = k => { try{ return localStorage.getItem(k); }catch(e){ return null; } };
+const lsSet = (k, v) => { try{ localStorage.setItem(k, v); }catch(e){} };
+
+/* ---------- stato ---------- */
+let R = [];          // richieste
+let NOTE = {};       // id richiesta -> testo nota
+let me = null;       // { uid, email, nome }
+let admin = false;
+let backend = null;
+let tab = 'cal';
+let month = (() => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1); })();
+let dayOpen = null;
+
+const visibleOnCal = r => r.stato === 'confermata' || (r.stato === 'proposta' && (admin || r.uid === me?.uid));
+
+/* ---------- schede ---------- */
+document.querySelectorAll('.tab').forEach(b => b.onclick = () => setTab(b.dataset.tab));
+function setTab(t){
+  tab = t;
+  document.querySelectorAll('.tab').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === t));
+  ['cal','mie','dec'].forEach(v => $('v-'+v).hidden = v !== t);
+  render();
+}
+
+function render(){
+  if(!me) return;
+  $('roleLbl').textContent = admin ? 'titolari' : '';
+  $('tabDec').hidden = !admin;
+  $('legendProp').textContent = admin ? 'proposta in attesa' : 'tua proposta in attesa';
+  const pend = R.filter(r => r.stato === 'proposta');
+  $('decCount').hidden = !pend.length; $('decCount').textContent = pend.length;
+  if(tab === 'cal') renderCal();
+  if(tab === 'mie') renderMie();
+  if(tab === 'dec') renderDec();
+  if(dayOpen && !$('daySheet').hidden) openDay(dayOpen);
+}
+
+/* ---------- calendario ---------- */
+$('prevBtn').onclick = () => { month = new Date(month.getFullYear(), month.getMonth()-1, 1); renderCal(); };
+$('nextBtn').onclick = () => { month = new Date(month.getFullYear(), month.getMonth()+1, 1); renderCal(); };
+$('todayBtn').onclick = () => { const d = new Date(); month = new Date(d.getFullYear(), d.getMonth(), 1); renderCal(); };
+
+function renderCal(){
+  $('monthLbl').textContent = fMonth.format(month);
+  const start = new Date(month); start.setDate(1 - ((month.getDay() + 6) % 7));   // lunedì
+  const today = TODAY();
+  const vis = R.filter(visibleOnCal).sort((a, b) => a.dal.localeCompare(b.dal) || String(a.nome).localeCompare(b.nome));
+  const wide = matchMedia('(min-width:700px)').matches;
+  const max = wide ? 4 : 3;
+  let h = ['lun','mar','mer','gio','ven','sab','dom'].map(d => `<div class="dow">${d}</div>`).join('');
+  for(let i = 0; i < 42; i++){
+    const d = new Date(start); d.setDate(start.getDate() + i);
+    if(i === 35 && d.getMonth() !== month.getMonth()) break;
+    const s = iso(d);
+    const here = vis.filter(r => r.dal <= s && s <= r.al);
+    const chips = here.slice(0, here.length > max ? max-1 : max).map(r => `<span class="who${r.stato==='proposta' ? ' prop' : ''}" style="--c:${colorOf(r.email)}">${esc(firstName(r.nome))}</span>`).join('');
+    const more = here.length > max ? `<span class="more">+${here.length - max + 1}</span>` : '';
+    const cls = ['day', d.getMonth() !== month.getMonth() ? 'out' : '', s === today ? 'today' : '', s < today ? 'past' : ''].join(' ');
+    const lbl = `${fLong.format(d)}: ${here.length ? here.map(r => firstName(r.nome)).join(', ') + ' assenti' : 'nessuno in ferie'}`;
+    h += `<button type="button" class="${cls}" data-day="${s}" aria-label="${esc(lbl)}"><span class="n">${d.getDate()}</span>${chips}${more}</button>`;
+  }
+  $('grid').innerHTML = h;
+  $('grid').querySelectorAll('[data-day]').forEach(b => b.onclick = () => openDay(b.dataset.day));
+}
+
+function openDay(s){
+  dayOpen = s;
+  $('dayTitle').textContent = fLong.format(parse(s)).replace(/^./, c => c.toUpperCase());
+  const here = R.filter(visibleOnCal).filter(r => r.dal <= s && s <= r.al);
+  $('dayList').innerHTML = here.length ? here.map(r => `<li><span class="person"><i class="dot" style="--c:${colorOf(r.email)}"></i>${esc(r.nome)}</span><span class="meta">${r.stato === 'proposta' ? 'in attesa · ' : ''}${esc(rangeTxt(r))}</span></li>`).join('')
+    : '<li><span class="meta">Nessuno in ferie in questo giorno.</span></li>';
+  $('dayPropose').hidden = s < TODAY();
+  showSheet('daySheet');
+}
+$('dayPropose').onclick = () => { closeSheets(); openPropose(dayOpen); };
+
+/* ---------- le mie richieste ---------- */
+function statoTxt(r){ return { proposta:'In attesa', confermata:'Confermata', rifiutata:'Non confermata' }[r.stato] || r.stato; }
+function renderMie(){
+  const mine = R.filter(r => r.uid === me.uid).sort((a, b) => b.dal.localeCompare(a.dal));
+  const today = TODAY();
+  const future = mine.filter(r => r.al >= today), past = mine.filter(r => r.al < today);
+  const card = r => `<div class="card">
+      <div class="card-top"><div><div class="range">${esc(rangeTxt(r))}</div><div class="meta">${daysTxt(r)} · proposta il ${esc(fWhen.format(new Date(r.creata)))}</div></div><span class="pill ${r.stato}">${statoTxt(r)}</span></div>
+      ${r.stato === 'proposta' ? `<div class="meta" style="margin-top:8px">La decidiamo ${esc(nextWednesday())}.</div>` : ''}
+      ${r.stato === 'rifiutata' && r.motivo ? `<div class="note"><b>Motivo</b>${esc(r.motivo)}</div>` : ''}
+      ${NOTE[r.id] ? `<div class="note"><b>La tua nota per i titolari</b>${esc(NOTE[r.id])}</div>` : ''}
+      ${r.stato === 'proposta' ? `<div class="actions"><button class="btn ghost" data-ritira="${r.id}" type="button">Ritira la proposta</button></div>` : ''}
+    </div>`;
+  let h = '';
+  if(!mine.length) h = `<div class="empty"><b>Nessuna richiesta</b>Tocca "Proponi ferie" per indicare il periodo che vorresti.</div>`;
+  else{
+    h += `<h2 class="section-h">Prossime</h2>` + (future.length ? future.map(card).join('') : `<div class="empty">Nessuna ferie in programma.</div>`);
+    if(past.length) h += `<details class="decise"><summary>Passate (${past.length})</summary>${past.map(card).join('')}</details>`;
+  }
+  $('v-mie').innerHTML = h;
+  $('v-mie').querySelectorAll('[data-ritira]').forEach(b => b.onclick = async () => {
+    const r = R.find(x => x.id === b.dataset.ritira); if(!r) return;
+    if(!confirm(`Ritiri la proposta ${rangeTxt(r)}?`)) return;
+    b.disabled = true;
+    try{ await backend.remove(r, !!NOTE[r.id]); toast('Proposta ritirata'); }
+    catch(e){ b.disabled = false; toast('Non riuscito: ' + (e.message || 'riprova')); }
+  });
+}
+
+/* ---------- da decidere (titolari) ---------- */
+function overlapHtml(r){
+  const others = R.filter(x => x.id !== r.id && x.uid !== r.uid && (x.stato === 'confermata' || x.stato === 'proposta') && overlaps(x, r))
+    .sort((a, b) => a.dal.localeCompare(b.dal));
+  if(!others.length) return `<div class="overlap none">Nessun altro assente in questo periodo.</div>`;
+  return `<div class="overlap some">Nello stesso periodo:<ul>${others.map(x => `<li><span><b>${esc(x.nome)}</b> ${esc(rangeTxt(x))}</span> ${x.stato === 'proposta' ? '(anche questa in attesa)' : '(confermata)'}</li>`).join('')}</ul></div>`;
+}
+function renderDec(){
+  if(!admin){ $('v-dec').innerHTML = ''; return; }
+  const pend = R.filter(r => r.stato === 'proposta').sort((a, b) => a.dal.localeCompare(b.dal));
+  const decise = R.filter(r => r.stato !== 'proposta' && r.al >= TODAY()).sort((a, b) => a.dal.localeCompare(b.dal));
+  let h = `<h2 class="section-h">Proposte in attesa</h2><p class="sub">Da decidere ${esc(nextWednesday())}. Quando confermi, le ferie vanno anche nel Google Calendar "Ferie / Eventi".</p>`;
+  h += pend.length ? pend.map(r => `<div class="card" data-id="${r.id}">
+      <div class="card-top"><div><div class="person"><i class="dot" style="--c:${colorOf(r.email)}"></i>${esc(r.nome)}</div><div class="range">${esc(rangeTxt(r))}</div><div class="meta">${daysTxt(r)} · proposta il ${esc(fWhen.format(new Date(r.creata)))}</div></div><span class="pill proposta">In attesa</span></div>
+      ${NOTE[r.id] ? `<div class="note"><b>Nota (solo per voi)</b>${esc(NOTE[r.id])}</div>` : ''}
+      ${overlapHtml(r)}
+      <div class="actions">
+        <button class="btn ok" data-ok type="button">Conferma</button>
+        <button class="btn no" data-no type="button">Non confermare</button>
+        <input class="motivo" data-motivo placeholder="Motivo (se non confermi, lo vede la persona)" maxlength="300">
+      </div>
+    </div>`).join('') : `<div class="empty"><b>Nessuna proposta in attesa</b>Le nuove richieste compariranno qui.</div>`;
+  if(decise.length) h += `<details class="decise"><summary>Già decise, ancora da fare (${decise.length})</summary>${decise.map(r => `<div class="card" data-id="${r.id}">
+      <div class="card-top"><div><div class="person"><i class="dot" style="--c:${colorOf(r.email)}"></i>${esc(r.nome)}</div><div class="range">${esc(rangeTxt(r))}</div><div class="meta">${daysTxt(r)}${r.decisaIl ? ' · decisa il ' + esc(fWhen.format(new Date(r.decisaIl))) : ''}</div></div><span class="pill ${r.stato}">${statoTxt(r)}</span></div>
+      ${NOTE[r.id] ? `<div class="note"><b>Nota (solo per voi)</b>${esc(NOTE[r.id])}</div>` : ''}
+      ${r.stato === 'rifiutata' && r.motivo ? `<div class="note"><b>Motivo</b>${esc(r.motivo)}</div>` : ''}
+      <div class="actions">
+        ${r.stato === 'confermata' && !r.eventoId ? `<span class="calwarn">Non è nel Google Calendar</span><button class="btn ghost" data-cal type="button">Aggiungi al calendario</button>` : ''}
+        <button class="btn ghost" data-back type="button">Rimetti in attesa</button>
+        <button class="btn no" data-del type="button">Elimina</button>
+      </div>
+    </div>`).join('')}</details>`;
+  $('v-dec').innerHTML = h;
+  $('v-dec').querySelectorAll('.card[data-id]').forEach(c => {
+    const r = R.find(x => x.id === c.dataset.id); if(!r) return;
+    const btns = [...c.querySelectorAll('button')];
+    const busy = on => btns.forEach(b => b.disabled = on);
+    const q = sel => c.querySelector(sel);
+    if(q('[data-ok]')) q('[data-ok]').onclick = async () => {
+      busy(true);
+      let eventoId = null, calErr = null;
+      try{ eventoId = await backend.addEvent(r); }catch(e){ calErr = e; }
+      if(calErr && !confirm(`Non sono riuscito a scrivere su Google Calendar (${calErr.message || 'errore'}).\n\nConfermo lo stesso le ferie di ${r.nome}? Potrai aggiungerle al calendario più tardi.`)){ busy(false); return; }
+      try{ await backend.update(r.id, { stato:'confermata', eventoId, motivo:'', decisaDa: me.email, decisaIl: new Date().toISOString() }); toast(`Ferie di ${firstName(r.nome)} confermate${eventoId ? ' e messe in calendario' : ''}`); }
+      catch(e){ busy(false); toast('Non riuscito: ' + (e.message || 'riprova')); }
+    };
+    if(q('[data-no]')) q('[data-no]').onclick = async () => {
+      const motivo = q('[data-motivo]').value.trim();
+      if(!confirm(`Non confermi le ferie di ${r.nome} (${rangeTxt(r)})?${motivo ? '' : '\n\nNon hai scritto un motivo: va bene lo stesso?'}`)) return;
+      busy(true);
+      try{ await backend.update(r.id, { stato:'rifiutata', motivo, decisaDa: me.email, decisaIl: new Date().toISOString() }); toast('Segnata come non confermata'); }
+      catch(e){ busy(false); toast('Non riuscito: ' + (e.message || 'riprova')); }
+    };
+    if(q('[data-cal]')) q('[data-cal]').onclick = async () => {
+      busy(true);
+      try{ const eventoId = await backend.addEvent(r); await backend.update(r.id, { eventoId }); toast('Aggiunte al calendario'); }
+      catch(e){ busy(false); toast('Calendario non raggiungibile: ' + (e.message || 'riprova')); }
+    };
+    if(q('[data-back]')) q('[data-back]').onclick = async () => {
+      if(!confirm(`Rimetti in attesa le ferie di ${r.nome}?${r.eventoId ? ' Le tolgo anche dal Google Calendar.' : ''}`)) return;
+      busy(true);
+      try{ if(r.eventoId) await backend.delEvent(r.eventoId); await backend.update(r.id, { stato:'proposta', eventoId:null, motivo:'', decisaDa:null, decisaIl:null }); toast('Rimessa in attesa'); }
+      catch(e){ busy(false); toast('Non riuscito: ' + (e.message || 'riprova')); }
+    };
+    if(q('[data-del]')) q('[data-del]').onclick = async () => {
+      if(!confirm(`Elimini la richiesta di ${r.nome} (${rangeTxt(r)})?${r.eventoId ? ' La tolgo anche dal Google Calendar.' : ''} Non si può annullare.`)) return;
+      busy(true);
+      try{ if(r.eventoId) await backend.delEvent(r.eventoId); await backend.remove(r, !!NOTE[r.id]); toast('Richiesta eliminata'); }
+      catch(e){ busy(false); toast('Non riuscito: ' + (e.message || 'riprova')); }
+    };
+  });
+}
+
+/* ---------- proposta ---------- */
+$('fab').onclick = () => openPropose(null);
+function openPropose(dal){
+  const t = TODAY();
+  $('fDal').min = t; $('fAl').min = dal || t;
+  $('fDal').value = dal || ''; $('fAl').value = dal || ''; $('fNota').value = '';
+  $('propErr').hidden = true; $('propOverlap').hidden = true;
+  $('propWed').textContent = `La decideremo ${nextWednesday()}.`;
+  $('propSend').disabled = false;
+  showSheet('propSheet');
+  checkProp();
+  if(!dal) setTimeout(() => $('fDal').focus(), 50);
+}
+function checkProp(){
+  const dal = $('fDal').value, al = $('fAl').value;
+  if(dal){ $('fAl').min = dal; if(!al || al < dal) $('fAl').value = dal; }
+  const r = { dal, al: $('fAl').value };
+  const box = $('propOverlap');
+  if(!r.dal || !r.al){ box.hidden = true; return; }
+  const others = R.filter(x => x.uid !== me.uid && x.stato === 'confermata' && overlaps(x, r)).sort((a, b) => a.dal.localeCompare(b.dal));
+  box.hidden = false;
+  box.className = 'overlap ' + (others.length ? 'some' : 'none');
+  box.innerHTML = `${daysTxt(r)}. ` + (others.length ? `In questo periodo sono già in ferie:<ul>${others.map(x => `<li><span><b>${esc(x.nome)}</b> ${esc(rangeTxt(x))}</span></li>`).join('')}</ul>` : 'Nessun collega è già in ferie in questo periodo.');
+}
+$('fDal').oninput = checkProp; $('fAl').oninput = checkProp;
+$('propForm').onsubmit = async e => {
+  e.preventDefault();
+  const dal = $('fDal').value, al = $('fAl').value, nota = $('fNota').value.trim();
+  const err = m => { $('propErr').textContent = m; $('propErr').hidden = false; };
+  if(!dal || !al) return err('Indica il primo e l\'ultimo giorno di ferie.');
+  if(al < dal) return err('L\'ultimo giorno è prima del primo.');
+  if(dal < TODAY()) return err('Il periodo deve iniziare da oggi in poi.');
+  const mineOverlap = R.find(x => x.uid === me.uid && x.stato !== 'rifiutata' && overlaps(x, { dal, al }));
+  if(mineOverlap) return err(`Hai già una richiesta in questo periodo (${rangeTxt(mineOverlap)}).`);
+  $('propSend').disabled = true;
+  try{
+    await backend.create({ uid: me.uid, email: me.email, nome: me.nome, dal, al, stato:'proposta', creata: new Date().toISOString() }, nota);
+    closeSheets();
+    toast(`Proposta inviata: la decidiamo ${nextWednesday()}`);
+    month = new Date(parse(dal).getFullYear(), parse(dal).getMonth(), 1);
+    render();
+  }catch(e2){ $('propSend').disabled = false; err('Invio non riuscito: ' + (e2.message || 'riprova')); }
+};
+
+/* ---------- fogli ---------- */
+function showSheet(id){ document.querySelectorAll('.sheet').forEach(s => s.hidden = s.id !== id); }
+function closeSheets(){ document.querySelectorAll('.sheet').forEach(s => s.hidden = true); dayOpen = null; }
+document.querySelectorAll('.sheet').forEach(s => s.addEventListener('click', e => { if(e.target.closest('[data-close]')) closeSheets(); }));
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeSheets(); });
+$('acct').onclick = () => showSheet('menuSheet');
+$('logoutBtn').onclick = () => { closeSheets(); backend && backend.logout(); };
+addEventListener('online', () => $('offline').hidden = true);
+addEventListener('offline', () => $('offline').hidden = false);
+$('offline').hidden = navigator.onLine;
+let rT; addEventListener('resize', () => { clearTimeout(rT); rT = setTimeout(() => tab === 'cal' && renderCal(), 150); });
+
+function gate(state, info){
+  $('gate').hidden = !state;
+  ['loading','login','denied','error'].forEach(s => $('gate-'+s).hidden = s !== state);
+  if(state === 'denied') $('gate-email').textContent = info || '';
+  if(state === 'loading') $('gate-loading-msg').textContent = info || 'Apro il calendario…';
+  if(state === 'error' && info) $('gate-error-msg').textContent = info;
+}
+function signedIn(user, isAdmin){
+  me = user; admin = isAdmin;
+  $('acct').textContent = firstName(me.nome).charAt(0).toUpperCase();
+  $('m-email').textContent = `${me.nome} · ${me.email}${admin ? ' · titolare' : ''}`;
+  $('fab').hidden = false;
+  if(!admin && tab === 'dec') setTab('cal'); else render();
+}
+
+/* ---------- dati: Firestore oppure modalità prova locale ---------- */
+const LOCAL_HOST = ['localhost','127.0.0.1','[::1]'].includes(location.hostname);
+const DEMO = LOCAL_HOST && new URLSearchParams(location.search).has('prova');
+if(DEMO) startDemo(); else startFirebase();
+
+function startDemo(){
+  // Prova sul PC senza login: dati finti, restano solo in questo browser; il Google Calendar è simulato.
+  const KEY = 'ferie-prova';
+  const people = [
+    { uid:'u-fra', email:'francesca@prova', nome:'Francesca Piadavolio' }, { uid:'u-lor', email:'lorenzo@prova', nome:'Lorenzo Morelli' },
+    { uid:'u-sol', email:'soledad@prova', nome:'Soledad Del Prete' }, { uid:'u-rob', email:'roberto@prova', nome:'Roberto' },
+    { uid:'u-ks', email:'k@prova', nome:'Kevin Sapigna' }, { uid:'u-ali', email:'alice@prova', nome:'Alice Lucchi' }, { uid:'u-adi', email:'adi@prova', nome:'Adi' },
+  ];
+  const boss = { uid:'u-jac', email:'jacopo@prova', nome:'Jacopo' };
+  let saved = null; try{ saved = JSON.parse(lsGet(KEY) || 'null'); }catch(e){}
+  if(!saved){
+    const t = TODAY(), d = n => addDays(t, n), now = new Date().toISOString();
+    const mk = (p, dal, al, stato, extra) => ({ id: Math.random().toString(36).slice(2, 10), uid:p.uid, email:p.email, nome:p.nome, dal, al, stato, creata: now, ...extra });
+    const list = [
+      mk(people[0], d(5), d(9), 'confermata', { eventoId:'demo' }), mk(people[1], d(7), d(8), 'proposta'),
+      mk(people[2], d(20), d(30), 'proposta'), mk(people[5], d(22), d(25), 'confermata', { eventoId:'demo' }),
+      mk(people[3], d(-6), d(-2), 'confermata', { eventoId:'demo' }), mk(people[6], d(40), d(47), 'rifiutata', { motivo:'Periodo di eventi, ne parliamo' }),
+    ];
+    saved = { R: list, NOTE: { [list[2].id]: 'Matrimonio di mia cugina in Spagna, posso spostarmi di un paio di giorni.' }, role: 'dip' };
+  }
+  R = saved.R; NOTE = saved.NOTE;
+  const save = () => lsSet(KEY, JSON.stringify({ R, NOTE: allNote, role: saved.role }));
+  const allNote = NOTE;
+  const visNote = () => admin ? allNote : Object.fromEntries(Object.entries(allNote).filter(([id]) => R.find(r => r.id === id && r.uid === me.uid)));
+  const login = () => { const isAdmin = saved.role === 'admin'; me = isAdmin ? boss : people[0]; admin = isAdmin; NOTE = visNote(); signedIn(me, isAdmin); };
+  backend = {
+    create: async (r, nota) => { r.id = Math.random().toString(36).slice(2, 10); R = [...R, r]; if(nota){ allNote[r.id] = nota; } save(); NOTE = visNote(); render(); },
+    update: async (id, patch) => { R = R.map(r => r.id === id ? { ...r, ...patch } : r); save(); render(); },
+    remove: async r => { R = R.filter(x => x.id !== r.id); delete allNote[r.id]; save(); NOTE = visNote(); render(); },
+    addEvent: async () => 'demo',
+    delEvent: async () => {},
+    logout: async () => { try{ localStorage.removeItem(KEY); }catch(e){} location.reload(); },
+  };
+  $('demoRole').hidden = false;
+  $('demoRole').onclick = () => { saved.role = saved.role === 'admin' ? 'dip' : 'admin'; save(); closeSheets(); login(); toast(saved.role === 'admin' ? 'Ora sei un titolare' : 'Ora sei Francesca (dipendente)'); };
+  $('m-email').textContent = '';
+  $('notice').innerHTML = '<div class="banner">Modalità prova sul PC: dati finti, solo in questo browser. Dal menu in alto a destra puoi passare da dipendente a titolare; "Esci" azzera tutto.</div>';
+  gate(null);
+  login();
+}
+
+async function startFirebase(){
+  gate('loading');
+  const FB_V = '10.12.2';
+  let unsubs = [];
+  try{
+    const { firebaseConfig } = await import('./firebase-config.js');
+    const [{ initializeApp }, A, S] = await Promise.all([
+      import(`https://www.gstatic.com/firebasejs/${FB_V}/firebase-app.js`),
+      import(`https://www.gstatic.com/firebasejs/${FB_V}/firebase-auth.js`),
+      import(`https://www.gstatic.com/firebasejs/${FB_V}/firebase-firestore.js`),
+    ]);
+    const app = initializeApp(firebaseConfig);
+    const auth = A.getAuth(app);
+    const db = S.getFirestore(app);
+    const reqs = S.collection(db, 'ferie_richieste');
+    const notes = S.collection(db, 'ferie_note');
+    const nice = e => new Error(e && e.code === 'permission-denied' ? 'permesso negato' : (e && e.message) || 'controlla la connessione');
+
+    // Google Calendar: chiedo il permesso al titolare solo quando conferma, e lo tengo per 50 minuti.
+    let calTok = null, calExp = 0;
+    const CAL_SCOPE = 'https://www.googleapis.com/auth/calendar.events';
+    async function calToken(){
+      if(calTok && Date.now() < calExp) return calTok;
+      const p = new A.GoogleAuthProvider(); p.addScope(CAL_SCOPE); p.setCustomParameters({ login_hint: auth.currentUser.email });
+      let res;
+      try{ res = await A.reauthenticateWithPopup(auth.currentUser, p); }
+      catch(e){ throw new Error(e.code === 'auth/popup-blocked' ? 'il browser ha bloccato la finestra di Google' : e.code === 'auth/popup-closed-by-user' ? 'finestra di Google chiusa' : e.code === 'auth/user-mismatch' ? 'hai scelto un altro account Google' : 'permesso Google non ottenuto'); }
+      calTok = A.GoogleAuthProvider.credentialFromResult(res)?.accessToken; calExp = Date.now() + 50*60e3;
+      if(!calTok) throw new Error('permesso Google non ottenuto');
+      return calTok;
+    }
+    async function calFetch(path, opts = {}){
+      const tok = await calToken();
+      const r = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CALENDAR_ID)}/events${path}`, { ...opts, headers: { Authorization: 'Bearer ' + tok, 'Content-Type': 'application/json' } });
+      if(r.status === 401){ calTok = null; throw new Error('permesso Google scaduto, riprova'); }
+      if(r.status === 404 || r.status === 410) return null;
+      if(!r.ok){ let m = ''; try{ m = (await r.json()).error.message; }catch(e){} throw new Error(r.status === 403 ? 'il tuo account non può modificare il calendario Ferie / Eventi' : m || 'errore ' + r.status); }
+      return r.status === 204 ? null : r.json();
+    }
+
+    backend = {
+      create: async (r, nota) => {
+        const ref = S.doc(reqs);
+        const b = S.writeBatch(db);
+        b.set(ref, r);
+        if(nota) b.set(S.doc(notes, ref.id), { uid: r.uid, testo: nota });
+        try{ await b.commit(); }catch(e){ throw nice(e); }
+      },
+      update: async (id, patch) => { try{ await S.updateDoc(S.doc(reqs, id), patch); }catch(e){ throw nice(e); } },
+      remove: async (r, hasNote) => {
+        const b = S.writeBatch(db);
+        b.delete(S.doc(reqs, r.id));
+        if(hasNote) b.delete(S.doc(notes, r.id));
+        try{ await b.commit(); }catch(e){ throw nice(e); }
+      },
+      addEvent: async r => {
+        const ev = await calFetch('', { method:'POST', body: JSON.stringify({
+          summary: `Ferie – ${r.nome}`,
+          description: 'Ferie confermate dall\'app Ferie.',
+          start: { date: r.dal }, end: { date: addDays(r.al, 1) },
+          transparency: 'transparent',
+        }) });
+        return ev.id;
+      },
+      delEvent: id => calFetch('/' + encodeURIComponent(id), { method:'DELETE' }),
+      logout: () => A.signOut(auth),
+    };
+
+    const login = async () => {
+      const provider = new A.GoogleAuthProvider();
+      provider.setCustomParameters({ prompt:'select_account' });
+      $('gate-login-err').hidden = true;
+      try{ await A.signInWithPopup(auth, provider); }
+      catch(e){
+        if(e.code === 'auth/popup-closed-by-user' || e.code === 'auth/cancelled-popup-request') return;
+        if(e.code === 'auth/popup-blocked' || e.code === 'auth/operation-not-supported-in-environment'){ try{ await A.signInWithRedirect(auth, provider); return; }catch(e2){ e = e2; } }
+        $('gate-login-err').hidden = false;
+        $('gate-login-err').textContent = e.code === 'auth/network-request-failed' ? 'Accesso non riuscito: sei senza internet.' : e.code === 'auth/unauthorized-domain' ? 'Questo indirizzo non è ancora abilitato in Firebase (Authentication › Settings › Domini autorizzati).' : 'Accesso non riuscito. Riprova.';
+      }
+    };
+    $('loginBtn').onclick = login;
+    $('switchBtn').onclick = async () => { try{ await A.signOut(auth); }catch(e){} login(); };
+    try{ await A.getRedirectResult(auth); }catch(e){}
+
+    A.onAuthStateChanged(auth, async user => {
+      unsubs.forEach(u => u()); unsubs = []; calTok = null;
+      closeSheets();
+      if(!user){ me = null; R = []; NOTE = {}; $('fab').hidden = true; gate('login'); return; }
+      gate('loading', 'Carico le ferie…');
+      // Sono un titolare? Lo dicono le regole di Firestore: solo i titolari possono leggere ferie_ruoli/titolare.
+      let isAdmin = false;
+      try{ await S.getDoc(S.doc(db, 'ferie_ruoli', 'titolare')); isAdmin = true; }
+      catch(e){ if(e.code !== 'permission-denied'){ gate('error', 'Il calendario non è raggiungibile. Controlla la connessione e riprova.'); return; } }
+      const profile = { uid: user.uid, email: (user.email || '').toLowerCase(), nome: user.displayName || (user.email || '').split('@')[0] };
+      let first = true;
+      unsubs.push(S.onSnapshot(reqs, snap => {
+        R = snap.docs.map(d => ({ ...d.data(), id: d.id }));
+        if(first){ first = false; gate(null); signedIn(profile, isAdmin); } else render();
+      }, err => {
+        if(err.code === 'permission-denied') gate('denied', user.email);
+        else gate('error', 'Il calendario non è raggiungibile. Controlla la connessione e riprova.');
+      }));
+      const nq = isAdmin ? notes : S.query(notes, S.where('uid', '==', user.uid));
+      unsubs.push(S.onSnapshot(nq, snap => { NOTE = Object.fromEntries(snap.docs.map(d => [d.id, d.data().testo])); render(); }, () => {}));
+    });
+  }catch(err){ console.error(err); gate('error', 'Non riesco ad avviare l\'app. Controlla la connessione a internet e riprova.'); }
+}
+
+if('serviceWorker' in navigator && !DEMO) navigator.serviceWorker.register('sw.js').catch(() => {});
+</script>
+</body>
+</html>
