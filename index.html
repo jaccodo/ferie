@@ -379,13 +379,9 @@ const fMonth = new Intl.DateTimeFormat('it-IT', { month:'long', year:'numeric' }
 const fWhen = new Intl.DateTimeFormat('it-IT', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
 const rangeTxt = r => r.dal === r.al ? fDay.format(parse(r.dal)) : `${fDay.format(parse(r.dal))} → ${fDay.format(parse(r.al))}${parse(r.al).getFullYear() !== new Date().getFullYear() ? ' ' + parse(r.al).getFullYear() : ''}`;
 const giorni = n => n === 1 ? '1 giorno' : `${n} giorni`;
-// Giorni di ferie: le festività nazionali dentro il periodo non si contano.
-function contaFerie(dal, al){
-  let n = 0, f = 0;
-  for(let s = dal; s <= al; s = addDays(s, 1)) holiday(s) ? f++ : n++;
-  return { n, f };
-}
-const daysTxt = r => { const { n, f } = contaFerie(r.dal, r.al); return giorni(n) + (f ? ` (${f === 1 ? 'esclusa 1 festività' : `escluse ${f} festività`})` : ''); };
+// Giorni di ferie: tutti i giorni del periodo, comprese le festività che ci cadono dentro.
+// Una festività fuori dalle ferie di qualcuno non conta per nessuno.
+const daysTxt = r => giorni(nDays(r));
 const overlaps = (a, b) => a.dal <= b.al && b.dal <= a.al;
 const firstName = s => String(s || '').trim().split(/\s+/)[0] || '?';
 const colorOf = key => { let h = 0; for(const ch of String(key)) h = (h*31 + ch.charCodeAt(0)) >>> 0; return `var(--p${h % 9})`; };
@@ -436,10 +432,10 @@ const isMine = r => r.email === me?.email;
 const visibleOnCal = r => r.stato === 'confermata' || (r.stato === 'proposta' && (admin || isMine(r)));
 const blocchiIn = r => BLOCCHI.filter(b => overlaps(b, r)).sort((a, b) => a.dal.localeCompare(b.dal));
 const bloccoTxt = b => `${b.motivo || 'Periodo bloccato'} (${rangeTxt(b)})`;
-// Giorni di ferie di una richiesta che cadono in un certo anno (festività escluse).
+// Giorni di ferie di una richiesta che cadono in un certo anno (festività dentro il periodo comprese).
 function giorniNellAnno(r, y){
   const a = r.dal > `${y}-01-01` ? r.dal : `${y}-01-01`, b = r.al < `${y}-12-31` ? r.al : `${y}-12-31`;
-  return a > b ? 0 : contaFerie(a, b).n;
+  return a > b ? 0 : nDays({ dal: a, al: b });
 }
 function conteggio(email, y){
   let conf = 0, att = 0;
@@ -717,7 +713,7 @@ function renderRie(){
   const tot = ppl.reduce((s, p) => ({ g: s.g + p.c.goduti, f: s.f + p.c.fatti, p: s.p + p.c.prog, a: s.a + p.c.att }), { g: 0, f: 0, p: 0, a: 0 });
   const stTxt = { done: 'fatte', mid: 'in corso', prog: 'in programma', att: 'in attesa' };
   let h = `<h2 class="section-h">Ferie godute</h2>
-    <div class="yearbar"><button class="icon-btn" id="yPrev" type="button" aria-label="Anno precedente">‹</button><b>${y}</b><button class="icon-btn" id="yNext" type="button" aria-label="Anno successivo">›</button><span class="hint">Festività escluse.</span></div>
+    <div class="yearbar"><button class="icon-btn" id="yPrev" type="button" aria-label="Anno precedente">‹</button><b>${y}</b><button class="icon-btn" id="yNext" type="button" aria-label="Anno successivo">›</button><span class="hint">Contano solo i giorni dentro le ferie di ognuno.</span></div>
     <p class="sub">"Godute" sono le ferie confermate: quelle già fatte più quelle in programma. Tocca un nome per vedere i periodi.</p>
     <div class="sum"><div class="stat"><b>${tot.g}</b><span>giorni goduti in tutto</span></div><div class="stat"><b>${tot.f}</b><span>già fatti</span></div><div class="stat"><b>${tot.p}</b><span>in programma</span></div>${tot.a ? `<div class="stat"><b>${tot.a}</b><span>in attesa</span></div>` : ''}</div>`;
   h += ppl.map(p => {
