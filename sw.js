@@ -1,6 +1,6 @@
 // Cache dei file dell'app: dopo la prima apertura si apre anche senza internet.
 // Quando modifichi i file cambia la versione qui sotto, così il telefono scarica l'aggiornamento.
-const CACHE = 'ferie-v2';
+const CACHE = 'ferie-v3';
 const FILES = ['./', 'index.html', 'firebase-config.js', 'manifest.json', 'icons/icon-192.png', 'icons/icon-512.png'];
 const RUNTIME = 'ferie-lib-v1';
 
