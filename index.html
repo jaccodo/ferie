@@ -19,7 +19,7 @@
   --bg:#f3f4ef; --surface:#ffffff; --fg:#17211b; --muted:#5f6b63; --line:#dfe3db; --soft:#eef1ea;
   --band:#1f3d2b; --band-fg:#eef5ef; --band-muted:#a9c4b1;
   --accent:#e8a83a; --accent-soft:#fbefd6; --accent-fg:#6b4708; --on-accent:#231703;
-  --good:#1f7a4f; --good-soft:#e1f2e8; --bad:#b3261e; --bad-soft:#fbe5e3; --warn:#8a5a00; --warn-soft:#fdf0d3;
+  --good:#1f7a4f; --good-soft:#e1f2e8; --bad:#b3261e; --bad-soft:#fbe5e3; --warn:#8a5a00; --warn-soft:#fdf0d3; --pend:#b58900;
   --p0:#2f7d5b; --p1:#c0562f; --p2:#3b6fb6; --p3:#a8437f; --p4:#8a7a18; --p5:#6a52b8; --p6:#1f8a99; --p7:#b5435a; --p8:#5d7a2a;
   --f-display:"Fraunces", Georgia, "Times New Roman", serif;
   --f-body:"Manrope", "Segoe UI", system-ui, -apple-system, sans-serif;
@@ -28,13 +28,13 @@
   --bg:#0f1511; --surface:#18201b; --fg:#e8eee9; --muted:#9aa89f; --line:#2a352e; --soft:#1e2822;
   --band:#132a1d; --band-fg:#e8f2ea; --band-muted:#8fb09a;
   --accent:#f0b955; --accent-soft:#3a2c10; --accent-fg:#f5d08a; --on-accent:#231703;
-  --good:#5cc995; --good-soft:#15301f; --bad:#f08a80; --bad-soft:#3a1916; --warn:#f0c15f; --warn-soft:#382a10;
+  --good:#5cc995; --good-soft:#15301f; --bad:#f08a80; --bad-soft:#3a1916; --warn:#f0c15f; --warn-soft:#382a10; --pend:#f2c94c;
   --p0:#5cc095; --p1:#ec8a62; --p2:#79a4e6; --p3:#df7fb6; --p4:#cfbf55; --p5:#a591ea; --p6:#5cc3d1; --p7:#ea8196; --p8:#9fc05e; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0f1511; --surface:#18201b; --fg:#e8eee9; --muted:#9aa89f; --line:#2a352e; --soft:#1e2822;
   --band:#132a1d; --band-fg:#e8f2ea; --band-muted:#8fb09a;
   --accent:#f0b955; --accent-soft:#3a2c10; --accent-fg:#f5d08a; --on-accent:#231703;
-  --good:#5cc995; --good-soft:#15301f; --bad:#f08a80; --bad-soft:#3a1916; --warn:#f0c15f; --warn-soft:#382a10;
+  --good:#5cc995; --good-soft:#15301f; --bad:#f08a80; --bad-soft:#3a1916; --warn:#f0c15f; --warn-soft:#382a10; --pend:#f2c94c;
   --p0:#5cc095; --p1:#ec8a62; --p2:#79a4e6; --p3:#df7fb6; --p4:#cfbf55; --p5:#a591ea; --p6:#5cc3d1; --p7:#ea8196; --p8:#9fc05e; color-scheme:dark}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
@@ -150,14 +150,16 @@ details.decise summary{cursor:pointer;font-weight:700;color:var(--muted);padding
 .day .who[data-id]:hover{filter:brightness(1.15)}
 .panel .card{margin-bottom:0}
 /* festività e periodi bloccati sul calendario */
+/* Colori uguali per tutti: giallo = in attesa, verde = confermate, rosso = festività, grigio a righe = bloccato */
+.day.hol{background-color:color-mix(in srgb,var(--bad) 13%,var(--surface));border-color:color-mix(in srgb,var(--bad) 40%,var(--line))}
 .day.hol .n{color:var(--bad)}
 .day .tag{font-size:.6rem;font-weight:700;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-left:3px;color:var(--muted)}
 .day .tag.h{color:var(--bad)}
-.day .tag.b{color:var(--warn)}
-.day.blk{background-image:repeating-linear-gradient(135deg,color-mix(in srgb,var(--warn) 13%,transparent) 0 5px,transparent 5px 11px)}
+.day .tag.b{color:var(--muted)}
+.day.blk{background-image:repeating-linear-gradient(135deg,color-mix(in srgb,var(--muted) 16%,transparent) 0 5px,transparent 5px 11px)}
 .legend .sw{display:inline-block;width:22px;height:14px;border-radius:4px;vertical-align:-2px;border:1px solid var(--line);background-color:var(--surface)}
-.legend .sw.blk{background-image:repeating-linear-gradient(135deg,color-mix(in srgb,var(--warn) 25%,transparent) 0 4px,transparent 4px 8px)}
-.legend .hol{color:var(--bad);font-weight:700}
+.legend .sw.blk{background-image:repeating-linear-gradient(135deg,color-mix(in srgb,var(--muted) 30%,transparent) 0 4px,transparent 4px 8px)}
+.legend .sw.hol{background-color:color-mix(in srgb,var(--bad) 12%,var(--surface));border-color:color-mix(in srgb,var(--bad) 45%,var(--line))}
 .dayinfo{margin:8px 0 0;padding:8px 10px;border-radius:10px;font-size:.86rem;font-weight:600}
 .dayinfo.h{background:var(--bad-soft);color:var(--bad)}
 .dayinfo.b{background:var(--warn-soft);color:var(--warn)}
@@ -255,9 +257,9 @@ details.decise summary{cursor:pointer;font-weight:700;color:var(--muted);padding
       </div>
       <div class="grid" id="grid"></div>
       <div class="legend">
-        <span><span class="who" style="--c:var(--p0)">Nome</span> ferie confermate</span>
-        <span><span class="who prop" style="--c:var(--p0)">Nome</span> <span id="legendProp">tua proposta in attesa</span></span>
-        <span><span class="hol">25</span> festività</span>
+        <span><span class="who" style="--c:var(--good)">Nome</span> ferie confermate</span>
+        <span><span class="who prop" style="--c:var(--pend)">Nome</span> <span id="legendProp">tua proposta in attesa</span></span>
+        <span><span class="sw hol"></span> festività</span>
         <span><span class="sw blk"></span> periodo bloccato</span>
       </div>
     </section>
@@ -384,6 +386,7 @@ const giorni = n => n === 1 ? '1 giorno' : `${n} giorni`;
 const daysTxt = r => giorni(nDays(r));
 const overlaps = (a, b) => a.dal <= b.al && b.dal <= a.al;
 const firstName = s => String(s || '').trim().split(/\s+/)[0] || '?';
+const statoCol = r => r.stato === 'confermata' ? 'var(--good)' : r.stato === 'proposta' ? 'var(--pend)' : 'var(--muted)';
 const colorOf = key => { let h = 0; for(const ch of String(key)) h = (h*31 + ch.charCodeAt(0)) >>> 0; return `var(--p${h % 9})`; };
 const cap = s => s.replace(/^./, c => c.toUpperCase());
 function nextWednesday(){
@@ -521,7 +524,7 @@ function renderCal(){
     // Il nome del periodo bloccato solo il primo giorno e all'inizio di ogni settimana, per non ripeterlo ovunque.
     const blkLbl = blk && (s === blk.dal || i % 7 === 0);
     const tags = (hol ? `<span class="tag h">${esc(hol)}</span>` : '') + (blkLbl ? `<span class="tag b">${esc(blk.motivo || 'Bloccato')}</span>` : '');
-    const chips = here.slice(0, here.length > max ? max-1 : max).map(r => `<span class="who${r.stato==='proposta' ? ' prop' : ''}" data-id="${r.id}" style="--c:${colorOf(r.email)}">${esc(firstName(nm(r)))}</span>`).join('');
+    const chips = here.slice(0, here.length > max ? max-1 : max).map(r => `<span class="who${r.stato==='proposta' ? ' prop' : ''}" data-id="${r.id}" style="--c:${statoCol(r)}">${esc(firstName(nm(r)))}</span>`).join('');
     const more = here.length > max ? `<span class="more">+${here.length - max + 1}</span>` : '';
     const cls = ['day', d.getMonth() !== month.getMonth() ? 'out' : '', s === today ? 'today' : '', s < today ? 'past' : '', hol ? 'hol' : '', blk ? 'blk' : ''].join(' ');
     const lbl = `${fLong.format(d)}${hol ? ', ' + hol : ''}${blk ? ', periodo bloccato' : ''}: ${here.length ? here.map(r => firstName(nm(r))).join(', ') + ' assenti' : 'nessuno in ferie'}`;
@@ -541,7 +544,7 @@ function openDay(s){
   const hol = holiday(s), blk = BLOCCHI.filter(b => b.dal <= s && s <= b.al);
   $('dayInfo').innerHTML = (hol ? `<div class="dayinfo h">Festività: ${esc(hol)}</div>` : '') + blk.map(b => `<div class="dayinfo b">Periodo bloccato: ${esc(bloccoTxt(b))}</div>`).join('');
   const here = R.filter(visibleOnCal).filter(r => r.dal <= s && s <= r.al);
-  $('dayList').innerHTML = here.length ? here.map(r => `<li><button type="button" class="dayitem" data-id="${r.id}"><span class="person"><i class="dot" style="--c:${colorOf(r.email)}"></i>${esc(nm(r))}</span><span class="meta">${r.stato === 'proposta' ? (admin ? '<b class="todo">da decidere</b> · ' : 'in attesa · ') : ''}${esc(rangeTxt(r))} ›</span></button></li>`).join('')
+  $('dayList').innerHTML = here.length ? here.map(r => `<li><button type="button" class="dayitem" data-id="${r.id}"><span class="person"><i class="dot" style="--c:${statoCol(r)}"></i>${esc(nm(r))}</span><span class="meta">${r.stato === 'proposta' ? (admin ? '<b class="todo">da decidere</b> · ' : 'in attesa · ') : ''}${esc(rangeTxt(r))} ›</span></button></li>`).join('')
     : '<li><span class="meta">Nessuno in ferie in questo giorno.</span></li>';
   $('dayList').querySelectorAll('[data-id]').forEach(b => b.onclick = () => openReq(b.dataset.id));
   $('dayPropose').hidden = s < TODAY() || (!admin && blk.length > 0);
@@ -564,7 +567,7 @@ function openReq(id){
     wireAdminCards($('reqBody'));
     const m = $('reqBody').querySelector('[data-motivo]'); if(m && same) m.value = motivo;
   } else {
-    $('reqBody').innerHTML = `<div class="card"><div class="card-top"><div><div class="person"><i class="dot" style="--c:${colorOf(r.email)}"></i>${esc(nm(r))}</div><div class="range">${esc(rangeTxt(r))}</div><div class="meta">${daysTxt(r)}</div></div><span class="pill ${r.stato}">${statoTxt(r)}</span></div>
+    $('reqBody').innerHTML = `<div class="card"><div class="card-top"><div><div class="person"><i class="dot" style="--c:${statoCol(r)}"></i>${esc(nm(r))}</div><div class="range">${esc(rangeTxt(r))}</div><div class="meta">${daysTxt(r)}</div></div><span class="pill ${r.stato}">${statoTxt(r)}</span></div>
       ${isMine(r) && r.stato === 'proposta' ? `<div class="meta" style="margin-top:8px">La decidiamo ${esc(nextWednesday())}. La trovi anche in "Le mie".</div>` : ''}</div>`;
   }
   $('reqBack').hidden = !back;
@@ -625,7 +628,7 @@ function renderDec(){
 // Scheda di una richiesta per i titolari: in attesa → Conferma / Non confermare; decisa → Rimetti in attesa / Elimina.
 function adminCard(r){
   const quando = r.stato !== 'proposta' && r.decisaIl ? 'decisa il ' + fWhen.format(new Date(r.decisaIl)) : (r.creataDa && r.creataDa !== r.email ? 'segnata da ' + firstName(nomeDi(r.creataDa)) : 'proposta') + ' il ' + fWhen.format(new Date(r.creata));
-  const head = `<div class="card-top"><div><div class="person"><i class="dot" style="--c:${colorOf(r.email)}"></i>${esc(nm(r))}</div><div class="range">${esc(rangeTxt(r))}</div><div class="meta">${daysTxt(r)} · ${esc(quando)}</div></div><span class="pill ${r.stato}">${statoTxt(r)}</span></div>
+  const head = `<div class="card-top"><div><div class="person"><i class="dot" style="--c:${statoCol(r)}"></i>${esc(nm(r))}</div><div class="range">${esc(rangeTxt(r))}</div><div class="meta">${daysTxt(r)} · ${esc(quando)}</div></div><span class="pill ${r.stato}">${statoTxt(r)}</span></div>
       ${NOTE[r.id] ? `<div class="note"><b>Nota (solo per voi)</b>${esc(NOTE[r.id])}</div>` : ''}`;
   if(r.stato === 'proposta') return `<div class="card" data-id="${r.id}">${head}
       ${overlapHtml(r)}
