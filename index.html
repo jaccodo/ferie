@@ -19,7 +19,7 @@
   --bg:#f3f4ef; --surface:#ffffff; --fg:#17211b; --muted:#5f6b63; --line:#dfe3db; --soft:#eef1ea;
   --band:#1f3d2b; --band-fg:#eef5ef; --band-muted:#a9c4b1;
   --accent:#e8a83a; --accent-soft:#fbefd6; --accent-fg:#6b4708; --on-accent:#231703;
-  --good:#1f7a4f; --good-soft:#e1f2e8; --bad:#b3261e; --bad-soft:#fbe5e3; --warn:#8a5a00; --warn-soft:#fdf0d3; --pend:#b58900;
+  --good:#1f7a4f; --good-soft:#e1f2e8; --bad:#b3261e; --bad-soft:#fbe5e3; --warn:#8a5a00; --warn-soft:#fdf0d3; --pend:#b58900; --ev:#3b6fb6;
   --p0:#2f7d5b; --p1:#c0562f; --p2:#3b6fb6; --p3:#a8437f; --p4:#8a7a18; --p5:#6a52b8; --p6:#1f8a99; --p7:#b5435a; --p8:#5d7a2a;
   --f-display:"Fraunces", Georgia, "Times New Roman", serif;
   --f-body:"Manrope", "Segoe UI", system-ui, -apple-system, sans-serif;
@@ -28,13 +28,13 @@
   --bg:#0f1511; --surface:#18201b; --fg:#e8eee9; --muted:#9aa89f; --line:#2a352e; --soft:#1e2822;
   --band:#132a1d; --band-fg:#e8f2ea; --band-muted:#8fb09a;
   --accent:#f0b955; --accent-soft:#3a2c10; --accent-fg:#f5d08a; --on-accent:#231703;
-  --good:#5cc995; --good-soft:#15301f; --bad:#f08a80; --bad-soft:#3a1916; --warn:#f0c15f; --warn-soft:#382a10; --pend:#f2c94c;
+  --good:#5cc995; --good-soft:#15301f; --bad:#f08a80; --bad-soft:#3a1916; --warn:#f0c15f; --warn-soft:#382a10; --pend:#f2c94c; --ev:#79a4e6;
   --p0:#5cc095; --p1:#ec8a62; --p2:#79a4e6; --p3:#df7fb6; --p4:#cfbf55; --p5:#a591ea; --p6:#5cc3d1; --p7:#ea8196; --p8:#9fc05e; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0f1511; --surface:#18201b; --fg:#e8eee9; --muted:#9aa89f; --line:#2a352e; --soft:#1e2822;
   --band:#132a1d; --band-fg:#e8f2ea; --band-muted:#8fb09a;
   --accent:#f0b955; --accent-soft:#3a2c10; --accent-fg:#f5d08a; --on-accent:#231703;
-  --good:#5cc995; --good-soft:#15301f; --bad:#f08a80; --bad-soft:#3a1916; --warn:#f0c15f; --warn-soft:#382a10; --pend:#f2c94c;
+  --good:#5cc995; --good-soft:#15301f; --bad:#f08a80; --bad-soft:#3a1916; --warn:#f0c15f; --warn-soft:#382a10; --pend:#f2c94c; --ev:#79a4e6;
   --p0:#5cc095; --p1:#ec8a62; --p2:#79a4e6; --p3:#df7fb6; --p4:#cfbf55; --p5:#a591ea; --p6:#5cc3d1; --p7:#ea8196; --p8:#9fc05e; color-scheme:dark}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
@@ -77,6 +77,10 @@ main .wrap{padding-block:14px 120px}
 .day.past .n{opacity:.6}
 .who{font-size:.66rem;font-weight:700;line-height:1.25;padding:1px 4px;border-radius:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--c);background:color-mix(in srgb,var(--c) 16%,transparent);border-left:3px solid var(--c)}
 .who.prop{background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--c) 12%,transparent) 0 4px,transparent 4px 8px);border:1px dashed var(--c);border-left-width:3px}
+.who.ev{color:#fff;background:var(--c);border-left-color:color-mix(in srgb,var(--c) 70%,#000)}
+:root[data-theme="dark"] .who.ev{color:#0f1511}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .who.ev{color:#0f1511}}
+.evnote{white-space:pre-wrap}
 .more{font-size:.65rem;color:var(--muted);font-weight:700;padding-left:4px}
 .legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:12px;font-size:.78rem;color:var(--muted);align-items:center}
 .legend .who{display:inline-block;font-size:.72rem}
@@ -250,6 +254,7 @@ details.decise summary{cursor:pointer;font-weight:700;color:var(--muted);padding
       <div class="monthbar">
         <h2 id="monthLbl"></h2>
         <div class="nav">
+          <button class="txt-btn" id="addEvBtn" type="button" hidden>+ Evento</button>
           <button class="txt-btn" id="todayBtn" type="button">Oggi</button>
           <button class="icon-btn" id="prevBtn" type="button" aria-label="Mese precedente">‹</button>
           <button class="icon-btn" id="nextBtn" type="button" aria-label="Mese successivo">›</button>
@@ -259,6 +264,7 @@ details.decise summary{cursor:pointer;font-weight:700;color:var(--muted);padding
       <div class="legend">
         <span><span class="who" style="--c:var(--good)">Nome</span> ferie confermate</span>
         <span><span class="who prop" style="--c:var(--pend)">Nome</span> <span id="legendProp">tua proposta in attesa</span></span>
+        <span><span class="who ev" style="--c:var(--ev)">Evento</span> evento</span>
         <span><span class="sw hol"></span> festività</span>
         <span><span class="sw blk"></span> periodo bloccato</span>
       </div>
@@ -284,8 +290,41 @@ details.decise summary{cursor:pointer;font-weight:700;color:var(--muted);padding
     <h3 id="dayTitle"></h3>
     <div id="dayInfo"></div>
     <ul class="daylist" id="dayList"></ul>
-    <div class="actions"><button class="btn accent" id="dayPropose" type="button">Proponi ferie da questo giorno</button></div>
+    <div class="actions"><button class="btn accent" id="dayPropose" type="button">Proponi ferie da questo giorno</button><button class="btn ghost" id="dayEvent" type="button" hidden>Aggiungi evento</button></div>
   </div>
+</div>
+
+<!-- foglio: un evento -->
+<div class="sheet" id="evSheet" hidden>
+  <div class="scrim" data-close></div>
+  <div class="panel" role="dialog" aria-modal="true" aria-labelledby="evTitle">
+    <button class="x" type="button" data-close aria-label="Chiudi">×</button>
+    <button class="linkback" id="evBack" type="button" hidden>‹ Torna al giorno</button>
+    <h3 id="evTitle"></h3>
+    <div id="evBody" style="margin-top:12px"></div>
+  </div>
+</div>
+
+<!-- foglio: nuovo evento (titolari) -->
+<div class="sheet" id="evFormSheet" hidden>
+  <div class="scrim" data-close></div>
+  <form class="panel" id="evForm" role="dialog" aria-modal="true" aria-labelledby="evFormTitle" novalidate>
+    <button class="x" type="button" data-close aria-label="Chiudi">×</button>
+    <h3 id="evFormTitle">Nuovo evento</h3>
+    <p class="hint">Lo vedono tutti nell'app e va anche nel Google Calendar "Ferie / Eventi".</p>
+    <div class="field"><label for="eTit">Titolo</label><input id="eTit" maxlength="120" placeholder="Es. Serata tiki, cambio turno Kelly / Alice" required></div>
+    <div class="row2">
+      <div class="field"><label for="eDal">Dal</label><input type="date" id="eDal" required></div>
+      <div class="field"><label for="eAl">Al (compreso)</label><input type="date" id="eAl" required></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label for="eOra">Ora inizio (facoltativa)</label><input type="time" id="eOra"></div>
+      <div class="field"><label for="eOraF">Ora fine (facoltativa)</label><input type="time" id="eOraF"></div>
+    </div>
+    <div class="field"><label for="eNote">Note (facoltative, le vedono tutti)</label><textarea id="eNote" maxlength="1000" placeholder="Dettagli, chi c'è, cosa portare…"></textarea></div>
+    <p class="err" id="evErr" hidden></p>
+    <div class="actions"><button class="btn accent" type="submit" id="evSend">Aggiungi evento</button><button class="btn ghost" type="button" data-close>Annulla</button></div>
+  </form>
 </div>
 
 <!-- foglio: una ferie -->
@@ -421,6 +460,7 @@ let R = [];          // richieste
 let NOTE = {};       // id richiesta -> testo nota
 let STAFF = {};      // email -> { nome, ruolo }
 let BLOCCHI = [];    // periodi bloccati { id, dal, al, motivo }
+let EVENTI = [];     // eventi { id, titolo, dal, al, ora, oraFine, note, eventoId }
 let me = null;       // { uid, email, nome }
 let admin = false;
 let backend = null;
@@ -467,6 +507,7 @@ function goBack(){
     const open = [...document.querySelectorAll('.sheet')].find(s => !s.hidden);
     if(open){
       if(open.id === 'reqSheet' && !$('reqBack').hidden) $('reqBack').onclick();
+      else if(open.id === 'evSheet' && !$('evBack').hidden) $('evBack').onclick();
       else closeSheets();
       return true;
     }
@@ -499,6 +540,8 @@ function render(){
   if(tab === 'ges') renderGes();
   if(dayOpen && !$('daySheet').hidden) openDay(dayOpen);
   if(reqOpen && !$('reqSheet').hidden) openReq(reqOpen);
+  if(evOpen && !$('evSheet').hidden) openEv(evOpen);
+  $('addEvBtn').hidden = !admin;
 }
 
 /* ---------- calendario ---------- */
@@ -524,17 +567,22 @@ function renderCal(){
     // Il nome del periodo bloccato solo il primo giorno e all'inizio di ogni settimana, per non ripeterlo ovunque.
     const blkLbl = blk && (s === blk.dal || i % 7 === 0);
     const tags = (hol ? `<span class="tag h">${esc(hol)}</span>` : '') + (blkLbl ? `<span class="tag b">${esc(blk.motivo || 'Bloccato')}</span>` : '');
-    const chips = here.slice(0, here.length > max ? max-1 : max).map(r => `<span class="who${r.stato==='proposta' ? ' prop' : ''}" data-id="${r.id}" style="--c:${statoCol(r)}">${esc(firstName(nm(r)))}</span>`).join('');
-    const more = here.length > max ? `<span class="more">+${here.length - max + 1}</span>` : '';
+    const evs = eventiDel(s);
+    const items = [
+      ...evs.map(e => `<span class="who ev" data-ev="${e.id}" style="--c:var(--ev)">${esc(evTxt(e))}</span>`),
+      ...here.map(r => `<span class="who${r.stato==='proposta' ? ' prop' : ''}" data-id="${r.id}" style="--c:${statoCol(r)}">${esc(firstName(nm(r)))}</span>`),
+    ];
+    const chips = items.slice(0, items.length > max ? max-1 : max).join('');
+    const more = items.length > max ? `<span class="more">+${items.length - max + 1}</span>` : '';
     const cls = ['day', d.getMonth() !== month.getMonth() ? 'out' : '', s === today ? 'today' : '', s < today ? 'past' : '', hol ? 'hol' : '', blk ? 'blk' : ''].join(' ');
-    const lbl = `${fLong.format(d)}${hol ? ', ' + hol : ''}${blk ? ', periodo bloccato' : ''}: ${here.length ? here.map(r => firstName(nm(r))).join(', ') + ' assenti' : 'nessuno in ferie'}`;
+    const lbl = `${fLong.format(d)}${hol ? ', ' + hol : ''}${blk ? ', periodo bloccato' : ''}${evs.length ? ', eventi: ' + evs.map(e => e.titolo).join(', ') : ''}: ${here.length ? here.map(r => firstName(nm(r))).join(', ') + ' assenti' : 'nessuno in ferie'}`;
     h += `<button type="button" class="${cls}" data-day="${s}" aria-label="${esc(lbl)}"><span class="n">${d.getDate()}</span>${tags}${chips}${more}</button>`;
   }
   $('grid').innerHTML = h;
   // Tocchi un nome → apri quella ferie; tocchi il resto del giorno → elenco del giorno.
   $('grid').querySelectorAll('[data-day]').forEach(b => b.onclick = e => {
-    const chip = e.target.closest('.who[data-id]');
-    if(chip) openReq(chip.dataset.id); else openDay(b.dataset.day);
+    const chip = e.target.closest('.who[data-id]'), evc = e.target.closest('.who[data-ev]');
+    if(chip) openReq(chip.dataset.id); else if(evc) openEv(evc.dataset.ev); else openDay(b.dataset.day);
   });
 }
 
@@ -544,14 +592,86 @@ function openDay(s){
   const hol = holiday(s), blk = BLOCCHI.filter(b => b.dal <= s && s <= b.al);
   $('dayInfo').innerHTML = (hol ? `<div class="dayinfo h">Festività: ${esc(hol)}</div>` : '') + blk.map(b => `<div class="dayinfo b">Periodo bloccato: ${esc(bloccoTxt(b))}</div>`).join('');
   const here = R.filter(visibleOnCal).filter(r => r.dal <= s && s <= r.al);
-  $('dayList').innerHTML = here.length ? here.map(r => `<li><button type="button" class="dayitem" data-id="${r.id}"><span class="person"><i class="dot" style="--c:${statoCol(r)}"></i>${esc(nm(r))}</span><span class="meta">${r.stato === 'proposta' ? (admin ? '<b class="todo">da decidere</b> · ' : 'in attesa · ') : ''}${esc(rangeTxt(r))} ›</span></button></li>`).join('')
-    : '<li><span class="meta">Nessuno in ferie in questo giorno.</span></li>';
+  const evs = eventiDel(s);
+  $('dayList').innerHTML = evs.map(e => `<li><button type="button" class="dayitem" data-ev="${e.id}"><span class="person"><i class="dot" style="--c:var(--ev)"></i>${esc(e.titolo)}</span><span class="meta">${esc(evQuando(e))} ›</span></button></li>`).join('')
+    + (here.length ? here.map(r => `<li><button type="button" class="dayitem" data-id="${r.id}"><span class="person"><i class="dot" style="--c:${statoCol(r)}"></i>${esc(nm(r))}</span><span class="meta">${r.stato === 'proposta' ? (admin ? '<b class="todo">da decidere</b> · ' : 'in attesa · ') : ''}${esc(rangeTxt(r))} ›</span></button></li>`).join('')
+    : '<li><span class="meta">Nessuno in ferie in questo giorno.</span></li>');
   $('dayList').querySelectorAll('[data-id]').forEach(b => b.onclick = () => openReq(b.dataset.id));
+  $('dayList').querySelectorAll('[data-ev]').forEach(b => b.onclick = () => openEv(b.dataset.ev));
+  $('dayEvent').hidden = !admin;
   $('dayPropose').hidden = s < TODAY() || (!admin && blk.length > 0);
   $('dayPropose').textContent = admin ? 'Segna ferie da questo giorno' : 'Proponi ferie da questo giorno';
   showSheet('daySheet');
 }
 $('dayPropose').onclick = () => { const d = dayOpen; closeSheets(); openPropose(d); };
+$('dayEvent').onclick = () => { const d = dayOpen; closeSheets(); openEvForm(d); };
+
+/* ---------- eventi (li aggiungono i titolari, li vedono tutti) ---------- */
+const eventiDel = s => EVENTI.filter(e => e.dal <= s && s <= e.al).sort((a, b) => (a.ora || '').localeCompare(b.ora || '') || a.titolo.localeCompare(b.titolo));
+const evTxt = e => (e.ora && e.dal === e.al ? e.ora + ' ' : '') + e.titolo;
+const evQuando = e => rangeTxt(e) + (e.ora ? ` · ore ${e.ora}${e.oraFine ? '–' + e.oraFine : ''}` : '');
+let evOpen = null;
+function openEv(id){
+  const e = EVENTI.find(x => x.id === id);
+  if(!e){ closeSheets(); return; }
+  const back = dayOpen;
+  evOpen = id;
+  $('evTitle').textContent = e.titolo;
+  $('evBody').innerHTML = `<div class="card"><div class="range">${esc(evQuando(e))}</div>${e.dal !== e.al ? `<div class="meta">${daysTxt(e)}</div>` : ''}
+      ${e.note ? `<div class="note evnote"><b>Note</b>${esc(e.note)}</div>` : ''}
+      ${admin ? `<div class="actions">${!e.eventoId ? `<span class="calwarn">Non è nel Google Calendar</span><button class="btn ghost" data-evcal type="button">Aggiungi al calendario</button>` : ''}<button class="btn no" data-evdel type="button">Elimina evento</button></div>` : ''}</div>`;
+  const del = $('evBody').querySelector('[data-evdel]');
+  if(del) del.onclick = async () => {
+    if(!confirm(`Elimini l'evento "${e.titolo}" (${rangeTxt(e)})?${e.eventoId ? ' Lo tolgo anche dal Google Calendar.' : ''}`)) return;
+    del.disabled = true;
+    try{ if(e.eventoId) await backend.delEvent(e.eventoId); await backend.delEvento(e.id); closeSheets(); toast('Evento eliminato'); }
+    catch(er){ del.disabled = false; toast('Non riuscito: ' + (er.message || 'riprova')); }
+  };
+  const cal = $('evBody').querySelector('[data-evcal]');
+  if(cal) cal.onclick = async () => {
+    cal.disabled = true;
+    try{ const eventoId = await backend.addCalEvent(e); await backend.updEvento(e.id, { eventoId }); toast('Aggiunto al calendario'); }
+    catch(er){ cal.disabled = false; toast('Calendario non raggiungibile: ' + (er.message || 'riprova')); }
+  };
+  $('evBack').hidden = !back;
+  $('evBack').onclick = () => openDay(back);
+  showSheet('evSheet');
+  dayOpen = back;
+}
+$('addEvBtn').onclick = () => openEvForm(null);
+function openEvForm(dal){
+  $('eTit').value = ''; $('eNote').value = ''; $('eOra').value = ''; $('eOraF').value = '';
+  $('eDal').value = dal || ''; $('eAl').value = dal || '';
+  $('evErr').hidden = true; $('evSend').disabled = false;
+  showSheet('evFormSheet');
+  setTimeout(() => $('eTit').focus(), 50);
+}
+$('eDal').oninput = () => { if(!$('eAl').value || $('eAl').value < $('eDal').value) $('eAl').value = $('eDal').value; $('eAl').min = $('eDal').value; };
+$('evForm').onsubmit = async ev => {
+  ev.preventDefault();
+  const e = { titolo: $('eTit').value.trim(), dal: $('eDal').value, al: $('eAl').value, ora: $('eOra').value, oraFine: $('eOraF').value, note: $('eNote').value.trim() };
+  const err = m => { $('evErr').textContent = m; $('evErr').hidden = false; };
+  if(!e.titolo) return err('Scrivi il titolo dell\'evento.');
+  if(!e.dal || !e.al) return err('Indica il giorno (o il primo e l\'ultimo giorno).');
+  if(e.al < e.dal) return err('L\'ultimo giorno è prima del primo.');
+  if(e.oraFine && !e.ora) return err('Hai messo l\'ora di fine ma non quella di inizio.');
+  if(e.ora && e.oraFine && e.dal === e.al && e.oraFine <= e.ora) return err('L\'ora di fine è prima di quella di inizio.');
+  $('evSend').disabled = true;
+  let eventoId = null, calErr = null;
+  try{ eventoId = await backend.addCalEvent(e); }catch(e2){ calErr = e2; }
+  if(calErr && !confirm(`Non sono riuscito a scrivere su Google Calendar (${calErr.message || 'errore'}).\n\nSalvo lo stesso l'evento nell'app? Potrai aggiungerlo al calendario più tardi.`)){ $('evSend').disabled = false; return; }
+  try{
+    await backend.addEvento({ ...e, eventoId, creataDa: me.email, creata: new Date().toISOString() });
+    closeSheets();
+    toast(eventoId ? 'Evento aggiunto e messo nel calendario' : 'Evento aggiunto');
+    month = new Date(parse(e.dal).getFullYear(), parse(e.dal).getMonth(), 1);
+    if(tab !== 'cal'){ tabHist.push(tab); setTab('cal'); } else render();
+  }catch(e2){
+    $('evSend').disabled = false;
+    if(eventoId) try{ await backend.delEvent(eventoId); }catch(e3){}
+    err('Salvataggio non riuscito: ' + (e2.message || 'riprova'));
+  }
+};
 
 // Scheda di una singola ferie: i titolari possono confermarla o no da qui, senza passare da "Da decidere".
 let reqOpen = null;
@@ -866,7 +986,7 @@ function showSheet(id){
   if($(id).hidden) navPush();   // solo quando si apre davvero un foglio nuovo, non quando si aggiorna
   document.querySelectorAll('.sheet').forEach(s => s.hidden = s.id !== id);
 }
-function closeSheets(){ document.querySelectorAll('.sheet').forEach(s => s.hidden = true); dayOpen = null; reqOpen = null; }
+function closeSheets(){ document.querySelectorAll('.sheet').forEach(s => s.hidden = true); dayOpen = null; reqOpen = null; evOpen = null; }
 document.querySelectorAll('.sheet').forEach(s => s.addEventListener('click', e => { if(e.target.closest('[data-close]')) closeSheets(); }));
 document.addEventListener('keydown', e => { if(e.key === 'Escape') closeSheets(); });
 $('acct').onclick = () => showSheet('menuSheet');
@@ -926,8 +1046,10 @@ function startDemo(){
       BLOCCHI: [{ id:'b1', dal:`${y}-12-20`, al:`${y+1}-01-06`, motivo:'Feste di Natale' }], role: 'dip' };
   }
   R = saved.R; STAFF = saved.STAFF; BLOCCHI = saved.BLOCCHI;
+  if(!saved.EVENTI){ const y = new Date().getFullYear(); saved.EVENTI = [{ id:'e1', titolo:'Serata tiki', dal: addDays(TODAY(), 3), al: addDays(TODAY(), 3), ora:'19:00', oraFine:'', note:'Inizio alle 19, servono due persone al bancone.', eventoId:'demo' }]; }
+  EVENTI = saved.EVENTI;
   const allNote = saved.NOTE;
-  const save = () => lsSet(KEY, JSON.stringify({ R, NOTE: allNote, STAFF, BLOCCHI, role: saved.role }));
+  const save = () => lsSet(KEY, JSON.stringify({ R, NOTE: allNote, STAFF, BLOCCHI, EVENTI, role: saved.role }));
   const visNote = () => admin ? allNote : Object.fromEntries(Object.entries(allNote).filter(([id]) => R.find(r => r.id === id && isMine(r))));
   const login = () => {
     const isAdmin = saved.role === 'admin';
@@ -941,7 +1063,11 @@ function startDemo(){
     update: async (rid, patch) => { R = R.map(r => r.id === rid ? { ...r, ...patch } : r); after(); },
     remove: async r => { R = R.filter(x => x.id !== r.id); delete allNote[r.id]; after(); },
     addEvent: async () => 'demo',
+    addCalEvent: async () => 'demo',
     delEvent: async () => {},
+    addEvento: async e => { EVENTI = [...EVENTI, { ...e, id: id() }]; after(); },
+    updEvento: async (eid, patch) => { EVENTI = EVENTI.map(e => e.id === eid ? { ...e, ...patch } : e); after(); },
+    delEvento: async eid => { EVENTI = EVENTI.filter(e => e.id !== eid); after(); },
     addBlocco: async b => { BLOCCHI = [...BLOCCHI, { ...b, id: id() }]; after(); },
     delBlocco: async bid => { BLOCCHI = BLOCCHI.filter(b => b.id !== bid); after(); },
     setPersona: async (email, p) => { STAFF = { ...STAFF, [email]: p }; after(); },
@@ -973,6 +1099,7 @@ async function startFirebase(){
     const notes = S.collection(db, 'ferie_note');
     const staffC = S.collection(db, 'ferie_staff');
     const blkC = S.collection(db, 'ferie_blocchi');
+    const evC = S.collection(db, 'ferie_eventi');
     const nice = e => new Error(e && e.code === 'permission-denied' ? 'permesso negato' : (e && e.message) || 'controlla la connessione');
     const run = async p => { try{ return await p; }catch(e){ throw nice(e); } };
 
@@ -1022,6 +1149,23 @@ async function startFirebase(){
         }) });
         return ev.id;
       },
+      // Evento generico (titolari): con l'ora diventa un appuntamento, senza ora un evento di giornata intera.
+      addCalEvent: async e => {
+        const piuUnOra = t => { const [h, m] = t.split(':').map(Number); return h >= 23 ? '23:59' : `${pad(h + 1)}:${pad(m)}`; };
+        const tz = 'Europe/Rome';
+        const quando = e.ora
+          ? { start: { dateTime: `${e.dal}T${e.ora}:00`, timeZone: tz }, end: { dateTime: `${e.al}T${e.oraFine || piuUnOra(e.ora)}:00`, timeZone: tz } }
+          : { start: { date: e.dal }, end: { date: addDays(e.al, 1) } };
+        const ev = await calFetch('', { method:'POST', body: JSON.stringify({
+          summary: e.titolo,
+          description: (e.note ? e.note + '\n\n' : '') + 'Evento aggiunto dall\'app Ferie.',
+          ...quando,
+        }) });
+        return ev.id;
+      },
+      addEvento: e => run(S.addDoc(evC, e)),
+      updEvento: (id, patch) => run(S.updateDoc(S.doc(evC, id), patch)),
+      delEvento: id => run(S.deleteDoc(S.doc(evC, id))),
       delEvent: id => calFetch('/' + encodeURIComponent(id), { method:'DELETE' }),
       addBlocco: b => run(S.addDoc(blkC, b)),
       delBlocco: id => run(S.deleteDoc(S.doc(blkC, id))),
@@ -1049,7 +1193,7 @@ async function startFirebase(){
     A.onAuthStateChanged(auth, async user => {
       unsubs.forEach(u => u()); unsubs = []; calTok = null;
       closeSheets();
-      if(!user){ me = null; R = []; NOTE = {}; STAFF = {}; BLOCCHI = []; $('fab').hidden = true; gate('login'); return; }
+      if(!user){ me = null; R = []; NOTE = {}; STAFF = {}; BLOCCHI = []; EVENTI = []; $('fab').hidden = true; gate('login'); return; }
       gate('loading', 'Carico le ferie…');
       // Sono un titolare? Lo dicono le regole di Firestore: solo i titolari possono leggere ferie_ruoli/titolare.
       let isAdmin = false;
@@ -1066,6 +1210,7 @@ async function startFirebase(){
       }));
       unsubs.push(S.onSnapshot(staffC, snap => { STAFF = Object.fromEntries(snap.docs.map(d => [d.id, d.data()])); refreshMe(); render(); }, () => {}));
       unsubs.push(S.onSnapshot(blkC, snap => { BLOCCHI = snap.docs.map(d => ({ ...d.data(), id: d.id })); render(); }, () => {}));
+      unsubs.push(S.onSnapshot(evC, snap => { EVENTI = snap.docs.map(d => ({ ...d.data(), id: d.id })); render(); }, () => {}));
       const nq = isAdmin ? notes : S.query(notes, S.where('uid', '==', user.uid));
       unsubs.push(S.onSnapshot(nq, snap => { NOTE = Object.fromEntries(snap.docs.map(d => [d.id, d.data().testo])); render(); }, () => {}));
     });
