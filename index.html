@@ -62,6 +62,39 @@ main .wrap{padding-block:14px 120px}
 /* calendario */
 .monthbar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
 .monthbar h2{font-family:var(--f-display);font-weight:600;font-size:1.25rem;margin:0;text-transform:capitalize}
+.mlbl{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:6px;padding:4px 6px;margin-left:-6px;border-radius:10px}
+.mlbl::after{content:"";width:7px;height:7px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg) translateY(-3px)}
+.mlbl:hover{background:var(--soft)}
+.mlbl:focus-visible{outline:2px solid var(--accent)}
+.mlbl.top::after{display:none}
+.grid{touch-action:pan-y}
+/* vista anno: 12 mesi in piccolo */
+.grid.yr{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (min-width:520px){.grid.yr{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (min-width:760px){.grid.yr{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.mese{box-sizing:border-box;min-width:0;cursor:pointer;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 6px 6px;display:block}
+.mese:hover{border-color:var(--muted)}
+.mese:focus-visible{outline:2px solid var(--accent)}
+.mese.cur{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.mese h4{margin:0 0 4px 4px;font-size:.85rem;text-transform:capitalize;font-family:var(--f-display)}
+.mese .mg{display:grid;grid-template-columns:repeat(7,1fr);gap:1px}
+.mese .md{font-size:.6rem;font-weight:600;text-align:center;line-height:1.7;border-radius:4px;color:var(--muted);font-variant-numeric:tabular-nums}
+.mese .md.c{background:color-mix(in srgb,var(--good) 30%,transparent);color:var(--fg)}
+.mese .md.p{background:color-mix(in srgb,var(--pend) 30%,transparent);color:var(--fg)}
+.mese .md.e{box-shadow:inset 0 -2px 0 var(--ev)}
+.mese .md.h{color:var(--bad);font-weight:800}
+.mese .md.t{outline:1.5px solid var(--accent);outline-offset:-1px}
+/* vista anni */
+.grid.yrs{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media (min-width:620px){.grid.yrs{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.ybox{box-sizing:border-box;cursor:pointer;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 10px;text-align:center}
+.ybox b{display:block;font-family:var(--f-display);font-size:1.35rem;font-variant-numeric:tabular-nums}
+.ybox span{font-size:.72rem;color:var(--muted);font-weight:600}
+.ybox:hover{border-color:var(--muted)}
+.ybox:focus-visible{outline:2px solid var(--accent)}
+.ybox.sel{border-color:var(--muted)}
+.ybox.cur{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.calhint{font-size:.75rem;color:var(--muted);margin:8px 0 0}
 .nav{display:flex;gap:6px}
 .icon-btn{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--surface);cursor:pointer;display:grid;place-items:center;font-size:1.1rem}
 .txt-btn{height:38px;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-weight:600;font-size:.85rem}
@@ -252,7 +285,7 @@ details.decise summary{cursor:pointer;font-weight:700;color:var(--muted);padding
 
     <section id="v-cal">
       <div class="monthbar">
-        <h2 id="monthLbl"></h2>
+        <h2><button class="mlbl" id="monthLbl" type="button"></button></h2>
         <div class="nav">
           <button class="txt-btn" id="addEvBtn" type="button" hidden>+ Evento</button>
           <button class="txt-btn" id="todayBtn" type="button">Oggi</button>
@@ -261,7 +294,8 @@ details.decise summary{cursor:pointer;font-weight:700;color:var(--muted);padding
         </div>
       </div>
       <div class="grid" id="grid"></div>
-      <div class="legend">
+      <p class="calhint" id="calHint" hidden></p>
+      <div class="legend" id="legend">
         <span><span class="who" style="--c:var(--good)">Nome</span> ferie confermate</span>
         <span><span class="who prop" style="--c:var(--pend)">Nome</span> <span id="legendProp">tua proposta in attesa</span></span>
         <span><span class="who ev" style="--c:var(--ev)">Evento</span> evento</span>
@@ -512,6 +546,7 @@ function goBack(){
       return true;
     }
     if(!$('gate').hidden) return false;
+    if(tab === 'cal' && calLevel !== 'm'){ zoomIn(null); return true; }
     while(tabHist.length){
       const t = tabHist.pop();
       if(t !== tab && (admin || (t !== 'dec' && t !== 'rie' && t !== 'ges'))){ setTab(t); return true; }
@@ -545,11 +580,114 @@ function render(){
 }
 
 /* ---------- calendario ---------- */
-$('prevBtn').onclick = () => { month = new Date(month.getFullYear(), month.getMonth()-1, 1); renderCal(); };
-$('nextBtn').onclick = () => { month = new Date(month.getFullYear(), month.getMonth()+1, 1); renderCal(); };
-$('todayBtn').onclick = () => { const d = new Date(); month = new Date(d.getFullYear(), d.getMonth(), 1); renderCal(); };
+// Tre livelli come Google Calendar: mese → anno (12 mesi) → anni. Si cambia toccando il titolo o pizzicando con due dita.
+let calLevel = 'm';
+let yearsStart = new Date().getFullYear() - 5;
+function sposta(n){
+  if(calLevel === 'm') month = new Date(month.getFullYear(), month.getMonth() + n, 1);
+  else if(calLevel === 'y') month = new Date(month.getFullYear() + n, month.getMonth(), 1);
+  else yearsStart += 12 * n;
+  renderCal();
+}
+$('prevBtn').onclick = () => sposta(-1);
+$('nextBtn').onclick = () => sposta(1);
+$('todayBtn').onclick = () => { const d = new Date(); month = new Date(d.getFullYear(), d.getMonth(), 1); calLevel = 'm'; renderCal(); };
+function zoomOut(){
+  if(calLevel === 'a') return;
+  if(calLevel === 'm') calLevel = 'y';
+  else { calLevel = 'a'; const y = month.getFullYear(); if(y < yearsStart || y > yearsStart + 11) yearsStart = y - 5; }
+  navPush(); renderCal();
+}
+function zoomIn(target){
+  if(calLevel === 'm') return false;
+  if(calLevel === 'a'){ const y = target?.dataset.y ? +target.dataset.y : month.getFullYear(); month = new Date(y, month.getMonth(), 1); calLevel = 'y'; }
+  else { if(target?.dataset.m) month = new Date(month.getFullYear(), +target.dataset.m, 1); calLevel = 'm'; }
+  renderCal();
+  return true;
+}
+$('monthLbl').onclick = zoomOut;
+
+// Gesti sul calendario: pizzico (due dita) per rimpicciolire/ingrandire, scorrimento laterale per cambiare mese/anno.
+(() => {
+  const g = $('grid');
+  let pinch = null, swipe = null, stopClick = 0;
+  const dist = t => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+  g.addEventListener('touchstart', e => {
+    if(e.touches.length === 2){ pinch = { d0: dist(e.touches), d: dist(e.touches), x: (e.touches[0].clientX + e.touches[1].clientX) / 2, y: (e.touches[0].clientY + e.touches[1].clientY) / 2 }; swipe = null; }
+    else if(e.touches.length === 1 && !pinch) swipe = { x: e.touches[0].clientX, y: e.touches[0].clientY, t: Date.now() };
+  }, { passive: true });
+  g.addEventListener('touchmove', e => {
+    if(pinch && e.touches.length === 2){ e.preventDefault(); pinch.d = dist(e.touches); }
+  }, { passive: false });
+  g.addEventListener('touchend', e => {
+    if(pinch && e.touches.length < 2){
+      const r = pinch.d / pinch.d0, p = pinch; pinch = null; stopClick = Date.now();
+      if(r < 0.75) zoomOut();
+      else if(r > 1.33) zoomIn(document.elementFromPoint(p.x, p.y)?.closest('[data-m],[data-y]'));
+      return;
+    }
+    if(swipe && e.changedTouches.length){
+      const dx = e.changedTouches[0].clientX - swipe.x, dy = e.changedTouches[0].clientY - swipe.y;
+      if(Math.abs(dx) > 60 && Math.abs(dx) > 1.5 * Math.abs(dy) && Date.now() - swipe.t < 700){ stopClick = Date.now(); sposta(dx < 0 ? 1 : -1); }
+      swipe = null;
+    }
+  });
+  // Dopo un gesto non apro per sbaglio il giorno sotto il dito.
+  g.addEventListener('click', e => { if(Date.now() - stopClick < 400){ e.stopPropagation(); e.preventDefault(); } }, true);
+})();
+
+// Giorni dell'anno con ferie/eventi, per colorare i mesi in piccolo.
+function segniAnno(y){
+  const m = {}, a = `${y}-01-01`, b = `${y}-12-31`;
+  const segna = (dal, al, k) => { let s = dal < a ? a : dal; const fine = al > b ? b : al; for(; s <= fine; s = addDays(s, 1)) (m[s] ||= {})[k] = 1; };
+  R.filter(visibleOnCal).forEach(r => segna(r.dal, r.al, r.stato === 'confermata' ? 'c' : 'p'));
+  EVENTI.forEach(e => segna(e.dal, e.al, 'e'));
+  return m;
+}
+function renderYear(){
+  const y = month.getFullYear(), today = TODAY(), seg = segniAnno(y), now = new Date();
+  $('monthLbl').textContent = y; $('monthLbl').classList.remove('top');
+  const fM = new Intl.DateTimeFormat('it-IT', { month:'long' });
+  let h = '';
+  for(let mi = 0; mi < 12; mi++){
+    const first = new Date(y, mi, 1), lead = (first.getDay() + 6) % 7, n = new Date(y, mi + 1, 0).getDate();
+    let cells = '<span></span>'.repeat(lead);
+    for(let d = 1; d <= n; d++){
+      const s = `${y}-${pad(mi + 1)}-${pad(d)}`, k = seg[s] || {};
+      const cls = ['md', k.c ? 'c' : k.p ? 'p' : '', k.e ? 'e' : '', holiday(s) ? 'h' : '', s === today ? 't' : ''].join(' ');
+      cells += `<span class="${cls}">${d}</span>`;
+    }
+    const cur = y === now.getFullYear() && mi === now.getMonth();
+    h += `<div role="button" tabindex="0" class="mese${cur ? ' cur' : ''}" data-m="${mi}" aria-label="${esc(fMonth.format(first))}"><h4>${fM.format(first)}</h4><div class="mg">${cells}</div></div>`;
+  }
+  $('grid').className = 'grid yr';
+  $('grid').innerHTML = h;
+  $('grid').querySelectorAll('[data-m]').forEach(b => { b.onclick = () => zoomIn(b); b.onkeydown = tastoInvio; });
+}
+function tastoInvio(e){ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); e.currentTarget.click(); } }
+function renderYears(){
+  const now = new Date().getFullYear(), sel = month.getFullYear();
+  $('monthLbl').textContent = `${yearsStart} – ${yearsStart + 11}`; $('monthLbl').classList.add('top');
+  let h = '';
+  for(let y = yearsStart; y < yearsStart + 12; y++){
+    const giorniConf = R.filter(r => r.stato === 'confermata').reduce((s, r) => s + giorniNellAnno(r, y), 0);
+    h += `<div role="button" tabindex="0" class="ybox${y === now ? ' cur' : ''}${y === sel && y !== now ? ' sel' : ''}" data-y="${y}"><b>${y}</b><span>${giorniConf ? giorni(giorniConf) + ' di ferie' : '&nbsp;'}</span></div>`;
+  }
+  $('grid').className = 'grid yrs';
+  $('grid').innerHTML = h;
+  $('grid').querySelectorAll('[data-y]').forEach(b => { b.onclick = () => zoomIn(b); b.onkeydown = tastoInvio; });
+}
 
 function renderCal(){
+  $('legend').hidden = calLevel === 'a';
+  $('calHint').hidden = calLevel === 'm';
+  $('calHint').textContent = calLevel === 'y' ? 'Tocca un mese per aprirlo. Tocca l\'anno in alto (o pizzica con due dita) per vedere gli anni.' : 'Tocca un anno per vedere i suoi mesi.';
+  $('prevBtn').setAttribute('aria-label', calLevel === 'm' ? 'Mese precedente' : calLevel === 'y' ? 'Anno precedente' : 'Anni precedenti');
+  $('nextBtn').setAttribute('aria-label', calLevel === 'm' ? 'Mese successivo' : calLevel === 'y' ? 'Anno successivo' : 'Anni successivi');
+  if(calLevel === 'y') return renderYear();
+  if(calLevel === 'a') return renderYears();
+  $('grid').className = 'grid';
+  $('monthLbl').classList.remove('top');
   $('monthLbl').textContent = fMonth.format(month);
   const start = new Date(month); start.setDate(1 - ((month.getDay() + 6) % 7));   // lunedì
   const today = TODAY();
@@ -664,7 +802,7 @@ $('evForm').onsubmit = async ev => {
     await backend.addEvento({ ...e, eventoId, creataDa: me.email, creata: new Date().toISOString() });
     closeSheets();
     toast(eventoId ? 'Evento aggiunto e messo nel calendario' : 'Evento aggiunto');
-    month = new Date(parse(e.dal).getFullYear(), parse(e.dal).getMonth(), 1);
+    calLevel = 'm'; month = new Date(parse(e.dal).getFullYear(), parse(e.dal).getMonth(), 1);
     if(tab !== 'cal'){ tabHist.push(tab); setTab('cal'); } else render();
   }catch(e2){
     $('evSend').disabled = false;
@@ -976,7 +1114,7 @@ $('propForm').onsubmit = async e => {
     }
     closeSheets();
     toast(!admin ? `Proposta inviata: la decidiamo ${nextWednesday()}` : conferma ? `Ferie di ${firstName(nome)} segnate e confermate` : `Proposta di ${firstName(nome)} segnata`);
-    month = new Date(parse(dal).getFullYear(), parse(dal).getMonth(), 1);
+    calLevel = 'm'; month = new Date(parse(dal).getFullYear(), parse(dal).getMonth(), 1);
     render();
   }catch(e2){ $('propSend').disabled = false; err('Invio non riuscito: ' + (e2.message || 'riprova')); }
 };
