@@ -254,6 +254,19 @@ details.decise summary{cursor:pointer;font-weight:700;color:var(--muted);padding
 .tbl td.num,.tbl th.num{text-align:right;font-variant-numeric:tabular-nums}
 .tbl tr:last-child td{border-bottom:0}
 .tbl .role{font-size:.72rem;color:var(--muted);font-weight:600}
+.chart{display:flex;align-items:flex-end;gap:6px;height:190px;padding:12px 10px 8px;background:var(--surface);border:1px solid var(--line);border-radius:14px}
+.chart .col{flex:1 1 0;min-width:0;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px}
+.chart .stack{width:100%;max-width:34px;flex:0 1 auto;height:calc(100% - 38px);display:flex;flex-direction:column;justify-content:flex-end}
+.chart .stack i{display:block;width:100%}
+.chart .stack i:first-child{border-radius:6px 6px 0 0}
+.chart .v{font-size:.78rem;font-weight:800;font-variant-numeric:tabular-nums;line-height:1}
+.chart .v small{font-size:.65rem;font-weight:700;color:var(--pend-fg);margin-left:1px}
+.chart .n{font-size:.66rem;font-weight:700;color:var(--muted);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sf{background:var(--good)}
+.sp{background:color-mix(in srgb,var(--good) 45%,var(--surface))}
+.sa{background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--pend) 55%,var(--surface)) 0 4px,color-mix(in srgb,var(--pend) 25%,var(--surface)) 4px 8px)}
+.chart-key{display:flex;gap:14px;flex-wrap:wrap;font-size:.75rem;color:var(--muted);margin:8px 2px 0}
+.chart-key i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-2px}
 .rie{background:var(--surface);border:1px solid var(--line);border-radius:14px;margin-bottom:8px}
 .rie summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:12px 14px}
 .rie summary::-webkit-details-marker{display:none}
@@ -1050,6 +1063,18 @@ function renderRie(){
     <p class="sub">"Godute" sono le ferie confermate: quelle già fatte più quelle in programma. Tocca un nome per vedere i periodi.</p>
     <h3 class="section-h" style="font-size:1rem;margin-top:6px">Le mie ferie</h3>
     <div class="sum"><div class="stat"><b>${tot.g}</b><span>giorni goduti</span></div><div class="stat"><b>${tot.f}</b><span>già fatti</span></div><div class="stat"><b>${tot.p}</b><span>in programma</span></div>${tot.a ? `<div class="stat"><b>${tot.a}</b><span>in attesa</span></div>` : ''}</div>`;
+  // Grafico a colonne: chi ne ha fatte di più. Verde pieno = già fatte, verde chiaro = in programma, giallo = in attesa.
+  const ord = [...ppl].sort((a, b) => b.c.goduti - a.c.goduti || b.c.att - a.c.att || a.nome.localeCompare(b.nome));
+  const maxG = Math.max(1, ...ord.map(p => p.c.goduti + p.c.att));
+  const pct = n => (n / maxG * 100).toFixed(1) + '%';
+  h += `<h3 class="section-h" style="font-size:1rem">Chi ne ha fatte di più</h3>
+    <div class="chart" role="img" aria-label="${esc(ord.map(p => `${p.nome}: ${p.c.goduti} giorni goduti`).join(', '))}">
+      ${ord.map(p => `<div class="col"><span class="v">${p.c.goduti || ''}${p.c.att ? `<small>+${p.c.att}</small>` : ''}</span>
+        <div class="stack" title="${esc(p.nome)}: ${p.c.fatti} fatti, ${p.c.prog} in programma${p.c.att ? ', ' + p.c.att + ' in attesa' : ''}">
+          ${p.c.att ? `<i class="sa" style="height:${pct(p.c.att)}"></i>` : ''}${p.c.prog ? `<i class="sp" style="height:${pct(p.c.prog)}"></i>` : ''}${p.c.fatti ? `<i class="sf" style="height:${pct(p.c.fatti)}"></i>` : ''}
+        </div><span class="n">${esc(firstName(p.nome))}</span></div>`).join('')}
+    </div>
+    <div class="chart-key"><span><i class="sf"></i>già fatte</span><span><i class="sp"></i>in programma</span><span><i class="sa"></i>in attesa</span></div>`;
   h += `<h3 class="section-h" style="font-size:1rem">Persona per persona</h3>`;
   h += ppl.map(p => {
     const c = p.c;
