@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Ferie Cactus</title>
-<meta name="theme-color" content="#1f3d2b">
+<meta name="theme-color" content="#1c2230">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Ferie">
@@ -16,25 +16,25 @@
 <style>
 /* Layout: banda verde in alto con titolo e schede (Calendario, Le mie richieste, Da decidere), sotto il contenuto della scheda; pulsante "Proponi ferie" fisso; fogli dal basso per giorno e proposta. */
 :root{
-  --bg:#f3f4ef; --surface:#ffffff; --fg:#17211b; --muted:#5f6b63; --line:#dfe3db; --soft:#eef1ea;
-  --band:#1f3d2b; --band-fg:#eef5ef; --band-muted:#a9c4b1;
-  --accent:#e8a83a; --accent-soft:#fbefd6; --accent-fg:#6b4708; --on-accent:#231703;
-  --good:#1f7a4f; --good-soft:#e1f2e8; --bad:#b3261e; --bad-soft:#fbe5e3; --warn:#8a5a00; --warn-soft:#fdf0d3; --pend:#b58900; --ev:#3b6fb6;
+  --bg:#f4f5f7; --surface:#ffffff; --fg:#1b1f27; --muted:#5d6470; --line:#e2e5eb; --soft:#eef0f4;
+  --band:#1c2230; --band-fg:#f3f5f9; --band-muted:#9aa3b5;
+  --accent:#1c2230; --accent-soft:#e9ecf2; --accent-fg:#1c2230; --on-accent:#ffffff;
+  --good:#188046; --good-soft:#e3f3e9; --bad:#c62828; --bad-soft:#fde7e7; --warn:#8a5a00; --warn-soft:#fdf0d3; --pend:#c99700; --pend-fg:#6e5300; --ev:#2f6fd0;
   --p0:#2f7d5b; --p1:#c0562f; --p2:#3b6fb6; --p3:#a8437f; --p4:#8a7a18; --p5:#6a52b8; --p6:#1f8a99; --p7:#b5435a; --p8:#5d7a2a;
   --f-display:"Fraunces", Georgia, "Times New Roman", serif;
   --f-body:"Manrope", "Segoe UI", system-ui, -apple-system, sans-serif;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#0f1511; --surface:#18201b; --fg:#e8eee9; --muted:#9aa89f; --line:#2a352e; --soft:#1e2822;
-  --band:#132a1d; --band-fg:#e8f2ea; --band-muted:#8fb09a;
-  --accent:#f0b955; --accent-soft:#3a2c10; --accent-fg:#f5d08a; --on-accent:#231703;
-  --good:#5cc995; --good-soft:#15301f; --bad:#f08a80; --bad-soft:#3a1916; --warn:#f0c15f; --warn-soft:#382a10; --pend:#f2c94c; --ev:#79a4e6;
+  --bg:#0f1115; --surface:#181b22; --fg:#e9ecf2; --muted:#9aa1ae; --line:#2a2f3a; --soft:#20242d;
+  --band:#161a22; --band-fg:#eef1f6; --band-muted:#8e97a8;
+  --accent:#e9ecf2; --accent-soft:#262c38; --accent-fg:#e9ecf2; --on-accent:#12151c;
+  --good:#43b97a; --good-soft:#13291c; --bad:#f07070; --bad-soft:#3a1818; --warn:#f0c15f; --warn-soft:#382a10; --pend:#f2c94c; --pend-fg:#f2c94c; --ev:#6fa0ee;
   --p0:#5cc095; --p1:#ec8a62; --p2:#79a4e6; --p3:#df7fb6; --p4:#cfbf55; --p5:#a591ea; --p6:#5cc3d1; --p7:#ea8196; --p8:#9fc05e; color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#0f1511; --surface:#18201b; --fg:#e8eee9; --muted:#9aa89f; --line:#2a352e; --soft:#1e2822;
-  --band:#132a1d; --band-fg:#e8f2ea; --band-muted:#8fb09a;
-  --accent:#f0b955; --accent-soft:#3a2c10; --accent-fg:#f5d08a; --on-accent:#231703;
-  --good:#5cc995; --good-soft:#15301f; --bad:#f08a80; --bad-soft:#3a1916; --warn:#f0c15f; --warn-soft:#382a10; --pend:#f2c94c; --ev:#79a4e6;
+  --bg:#0f1115; --surface:#181b22; --fg:#e9ecf2; --muted:#9aa1ae; --line:#2a2f3a; --soft:#20242d;
+  --band:#161a22; --band-fg:#eef1f6; --band-muted:#8e97a8;
+  --accent:#e9ecf2; --accent-soft:#262c38; --accent-fg:#e9ecf2; --on-accent:#12151c;
+  --good:#43b97a; --good-soft:#13291c; --bad:#f07070; --bad-soft:#3a1818; --warn:#f0c15f; --warn-soft:#382a10; --pend:#f2c94c; --pend-fg:#f2c94c; --ev:#6fa0ee;
   --p0:#5cc095; --p1:#ec8a62; --p2:#79a4e6; --p3:#df7fb6; --p4:#cfbf55; --p5:#a591ea; --p6:#5cc3d1; --p7:#ea8196; --p8:#9fc05e; color-scheme:dark}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
@@ -53,16 +53,18 @@ h1 small{font-family:var(--f-body);font-size:.75rem;font-weight:600;color:var(--
 .tabs::-webkit-scrollbar{display:none}
 .tab{flex:none;border:0;background:transparent;color:var(--band-muted);font-weight:600;font-size:.9rem;padding:10px 12px 12px;cursor:pointer;border-bottom:3px solid transparent;display:inline-flex;gap:6px;align-items:center}
 @media (max-width:480px){.tab{padding:10px 8px 12px;font-size:.86rem}}
-.tab[aria-selected="true"]{color:var(--band-fg);border-bottom-color:var(--accent)}
+.tab[aria-selected="true"]{color:var(--band-fg);border-bottom-color:var(--band-fg)}
 .tab:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
-.badge{min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:var(--accent);color:var(--on-accent);font-size:.72rem;font-weight:700;display:inline-grid;place-items:center;font-variant-numeric:tabular-nums}
+.badge{min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:var(--pend);color:#1b1f27;font-size:.72rem;font-weight:700;display:inline-grid;place-items:center;font-variant-numeric:tabular-nums}
 main .wrap{padding-block:14px 120px}
 .banner{margin:0 0 12px;padding:10px 12px;border-radius:12px;font-size:.85rem;background:var(--warn-soft);color:var(--warn)}
 
 /* calendario */
 .monthbar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
-.monthbar h2{font-family:var(--f-display);font-weight:600;font-size:1.25rem;margin:0;text-transform:capitalize}
-.mlbl{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:6px;padding:4px 6px;margin-left:-6px;border-radius:10px}
+.monthbar h2{font-family:var(--f-display);font-weight:600;font-size:1.2rem;margin:0;text-transform:capitalize;white-space:nowrap;min-width:0}
+@media (max-width:420px){.monthbar h2{font-size:1.05rem}.monthbar .txt-btn{padding:0 9px}.monthbar .icon-btn{width:34px}.monthbar .nav{gap:4px}}
+.monthbar .txt-btn{white-space:nowrap}
+.mlbl{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:7px;padding:4px 10px 4px 6px;margin-left:-6px;border-radius:10px}
 .mlbl::after{content:"";width:7px;height:7px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg) translateY(-3px)}
 .mlbl:hover{background:var(--soft)}
 .mlbl:focus-visible{outline:2px solid var(--accent)}
@@ -130,7 +132,7 @@ main .wrap{padding-block:14px 120px}
 .range{font-weight:700;font-size:1rem;margin-top:4px}
 .meta{color:var(--muted);font-size:.8rem;margin-top:2px}
 .pill{flex:none;font-size:.72rem;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap}
-.pill.proposta{background:var(--accent-soft);color:var(--accent-fg)}
+.pill.proposta{background:color-mix(in srgb,var(--pend) 20%,var(--surface));color:var(--pend-fg)}
 .pill.confermata{background:var(--good-soft);color:var(--good)}
 .pill.rifiutata{background:var(--bad-soft);color:var(--bad)}
 .note{margin-top:10px;padding:8px 10px;border-radius:10px;background:var(--soft);font-size:.86rem;white-space:pre-wrap}
@@ -181,12 +183,45 @@ details.decise summary{cursor:pointer;font-weight:700;color:var(--muted);padding
 .dayitem{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:12px;border:0;border-radius:12px;background:transparent;cursor:pointer;text-align:left}
 .dayitem:hover{background:color-mix(in srgb,var(--fg) 5%,transparent)}
 .dayitem:focus-visible{outline:2px solid var(--accent);outline-offset:0}
-.todo{color:var(--accent-fg);background:var(--accent-soft);padding:1px 7px;border-radius:999px;font-size:.75rem}
+.todo{color:var(--pend-fg);background:color-mix(in srgb,var(--pend) 20%,var(--surface));padding:1px 7px;border-radius:999px;font-size:.75rem}
 .linkback{border:0;background:transparent;color:var(--muted);font-weight:700;font-size:.85rem;padding:0 0 6px;cursor:pointer}
 .day .who[data-id]{cursor:pointer}
 .day .who[data-id]:hover{filter:brightness(1.15)}
 .panel .card{margin-bottom:0}
 /* festività e periodi bloccati sul calendario */
+
+/* mese stile Google Calendar: settimane larghe, barre continue sui giorni consecutivi */
+.cal{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;touch-action:pan-y}
+.cal-dow{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border-bottom:1px solid var(--line)}
+.cal-dow .dow{padding:7px 0 6px;font-size:.68rem}
+.wk{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));row-gap:2px;min-height:72px;padding-bottom:4px;border-bottom:1px solid var(--line)}
+.wk:last-child{border-bottom:0}
+@media (min-width:700px){.wk{min-height:104px}}
+.cell{grid-row:1 / -1;border:0;border-right:1px solid var(--line);background:transparent;padding:4px 0 0;margin:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px;min-width:0;text-align:center}
+.cell:nth-child(7){border-right:0}
+.cell:hover{background:var(--soft)}
+.cell:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.cell .n{font-size:.78rem;font-weight:700;width:24px;height:24px;line-height:24px;border-radius:50%;font-variant-numeric:tabular-nums;color:var(--fg)}
+.cell.out .n{color:var(--muted);opacity:.55}
+.cell.out{background:color-mix(in srgb,var(--soft) 60%,transparent)}
+.cell.today .n{background:var(--accent);color:var(--on-accent)}
+.cell.hol{background:color-mix(in srgb,var(--bad) 8%,var(--surface))}
+.cell.hol .n{color:var(--bad)}
+.cell.today.hol .n{background:var(--bad);color:#fff}
+.cell.blk{background-image:repeating-linear-gradient(135deg,color-mix(in srgb,var(--muted) 14%,transparent) 0 5px,transparent 5px 11px)}
+.cell .tag{display:none}
+.bar{position:relative;z-index:1;align-self:center;margin:0 2px;height:20px;line-height:20px;padding:0 5px;border-radius:6px;font-size:.72rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;min-width:0}
+.bar.c{background:var(--good);color:#fff}
+.bar.p{background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--pend) 26%,var(--surface)) 0 5px,color-mix(in srgb,var(--pend) 10%,var(--surface)) 5px 10px);color:var(--pend-fg);box-shadow:inset 0 0 0 1.5px var(--pend)}
+.bar.e{background:var(--ev);color:#fff}
+.bar.cl{margin-left:0;border-top-left-radius:0;border-bottom-left-radius:0}
+.bar.cr{margin-right:0;border-top-right-radius:0;border-bottom-right-radius:0}
+.bar:hover{filter:brightness(1.08)}
+.wk .more{position:relative;z-index:1;pointer-events:none;align-self:center;font-size:.68rem;font-weight:700;color:var(--muted);padding-left:6px}
+:root[data-theme="dark"] .bar.c,:root[data-theme="dark"] .bar.e{color:#0f1115}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .bar.c,:root:not([data-theme="light"]) .bar.e{color:#0f1115}}
+@media (min-width:700px){.cell{align-items:flex-start;padding:4px 0 0 6px}.cell .tag{display:block;max-width:100%;font-size:.62rem;font-weight:700;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 6px 0 2px}.cell .tag.h{color:var(--bad)}.cell{flex-direction:row;align-items:flex-start;justify-content:flex-start}}
+.legend .bar{display:inline-block;height:18px;line-height:18px;margin:0 4px 0 0;vertical-align:middle;cursor:default;font-size:.68rem}
 /* Colori uguali per tutti: giallo = in attesa, verde = confermate, rosso = festività, grigio a righe = bloccato */
 .day.hol{background-color:color-mix(in srgb,var(--bad) 13%,var(--surface));border-color:color-mix(in srgb,var(--bad) 40%,var(--line))}
 .day.hol .n{color:var(--bad)}
@@ -296,9 +331,9 @@ details.decise summary{cursor:pointer;font-weight:700;color:var(--muted);padding
       <div class="grid" id="grid"></div>
       <p class="calhint" id="calHint" hidden></p>
       <div class="legend" id="legend">
-        <span><span class="who" style="--c:var(--good)">Nome</span> ferie confermate</span>
-        <span><span class="who prop" style="--c:var(--pend)">Nome</span> <span id="legendProp">tua proposta in attesa</span></span>
-        <span><span class="who ev" style="--c:var(--ev)">Evento</span> evento</span>
+        <span><span class="bar c">Nome</span>ferie confermate</span>
+        <span><span class="bar p">Nome</span><span id="legendProp">tua proposta in attesa</span></span>
+        <span><span class="bar e">Evento</span>evento</span>
         <span><span class="sw hol"></span> festività</span>
         <span><span class="sw blk"></span> periodo bloccato</span>
       </div>
@@ -703,42 +738,61 @@ function renderCal(){
   $('nextBtn').setAttribute('aria-label', calLevel === 'm' ? 'Mese successivo' : calLevel === 'y' ? 'Anno successivo' : 'Anni successivi');
   if(calLevel === 'y') return renderYear();
   if(calLevel === 'a') return renderYears();
-  $('grid').className = 'grid';
+  $('grid').className = 'cal';
   $('monthLbl').classList.remove('top');
   $('monthLbl').textContent = fMonth.format(month);
   const start = new Date(month); start.setDate(1 - ((month.getDay() + 6) % 7));   // lunedì
   const today = TODAY();
-  const vis = R.filter(visibleOnCal).sort((a, b) => a.dal.localeCompare(b.dal) || nm(a).localeCompare(nm(b)));
   const wide = matchMedia('(min-width:700px)').matches;
-  const max = wide ? 4 : 3;
-  let h = ['lun','mar','mer','gio','ven','sab','dom'].map(d => `<div class="dow">${d}</div>`).join('');
-  for(let i = 0; i < 42; i++){
-    const d = new Date(start); d.setDate(start.getDate() + i);
-    if(i === 35 && d.getMonth() !== month.getMonth()) break;
-    const s = iso(d);
-    const here = vis.filter(r => r.dal <= s && s <= r.al);
-    const hol = holiday(s);
-    const blk = BLOCCHI.find(b => b.dal <= s && s <= b.al);
-    // Il nome del periodo bloccato solo il primo giorno e all'inizio di ogni settimana, per non ripeterlo ovunque.
-    const blkLbl = blk && (s === blk.dal || i % 7 === 0);
-    const tags = (hol ? `<span class="tag h">${esc(hol)}</span>` : '') + (blkLbl ? `<span class="tag b">${esc(blk.motivo || 'Bloccato')}</span>` : '');
-    const evs = eventiDel(s);
-    const items = [
-      ...evs.map(e => `<span class="who ev" data-ev="${e.id}" style="--c:var(--ev)">${esc(evTxt(e))}</span>`),
-      ...here.map(r => `<span class="who${r.stato==='proposta' ? ' prop' : ''}" data-id="${r.id}" style="--c:${statoCol(r)}">${esc(firstName(nm(r)))}</span>`),
-    ];
-    const chips = items.slice(0, items.length > max ? max-1 : max).join('');
-    const more = items.length > max ? `<span class="more">+${items.length - max + 1}</span>` : '';
-    const cls = ['day', d.getMonth() !== month.getMonth() ? 'out' : '', s === today ? 'today' : '', s < today ? 'past' : '', hol ? 'hol' : '', blk ? 'blk' : ''].join(' ');
-    const lbl = `${fLong.format(d)}${hol ? ', ' + hol : ''}${blk ? ', periodo bloccato' : ''}${evs.length ? ', eventi: ' + evs.map(e => e.titolo).join(', ') : ''}: ${here.length ? here.map(r => firstName(nm(r))).join(', ') + ' assenti' : 'nessuno in ferie'}`;
-    h += `<button type="button" class="${cls}" data-day="${s}" aria-label="${esc(lbl)}"><span class="n">${d.getDate()}</span>${tags}${chips}${more}</button>`;
+  const MAXL = wide ? 5 : 4;   // righe di barre per settimana, oltre compare "+N"
+  // Ferie ed eventi come barre: una barra unica per tutti i giorni consecutivi della settimana (stile Google Calendar).
+  const items = [
+    ...R.filter(visibleOnCal).map(r => ({ k: r.stato === 'confermata' ? 'c' : 'p', id: r.id, dal: r.dal, al: r.al, nome: nm(r) })),
+    ...EVENTI.map(e => ({ k: 'e', id: e.id, dal: e.dal, al: e.al, nome: wide ? evTxt(e) : e.titolo })),
+  ];
+  let h = `<div class="cal-dow">${['lun','mar','mer','gio','ven','sab','dom'].map(d => `<div class="dow">${d}</div>`).join('')}</div>`;
+  for(let w = 0; w < 6; w++){
+    const days = Array.from({ length: 7 }, (_, i) => { const d = new Date(start); d.setDate(start.getDate() + w * 7 + i); return d; });
+    if(w > 3 && days[0].getMonth() !== month.getMonth()) break;
+    const ws = iso(days[0]), we = iso(days[6]);
+    // Barre della settimana, le più lunghe prima, poi assegnate alla prima riga libera.
+    const bars = items.filter(it => it.dal <= we && it.al >= ws).map(it => {
+      const a = it.dal < ws ? ws : it.dal, b = it.al > we ? we : it.al;
+      return { ...it, c0: Math.round((parse(a) - days[0]) / 864e5), c1: Math.round((parse(b) - days[0]) / 864e5), cl: it.dal < ws, cr: it.al > we };
+    }).sort((x, y) => x.c0 - y.c0 || (y.c1 - y.c0) - (x.c1 - x.c0) || x.k.localeCompare(y.k) || x.nome.localeCompare(y.nome));
+    const lanes = [];
+    bars.forEach(b => {
+      let l = lanes.findIndex(occ => occ.every(([s0, s1]) => b.c1 < s0 || b.c0 > s1));
+      if(l < 0){ l = lanes.length; lanes.push([]); }
+      lanes[l].push([b.c0, b.c1]); b.lane = l;
+    });
+    const vis = lanes.length > MAXL ? MAXL - 1 : lanes.length;
+    const hidden = Array(7).fill(0);
+    bars.filter(b => b.lane >= vis).forEach(b => { for(let c = b.c0; c <= b.c1; c++) hidden[c]++; });
+    const hasMore = hidden.some(Boolean);
+    const rows = `30px${vis ? ` repeat(${vis},20px)` : ''}${hasMore ? ' 18px' : ''} minmax(0,1fr)`;
+    let cells = '', fg = '';
+    days.forEach((d, i) => {
+      const s = iso(d), hol = holiday(s), blk = BLOCCHI.find(b => b.dal <= s && s <= b.al);
+      const lbl = hol || (blk && (s === blk.dal || i === 0) ? (blk.motivo || 'Bloccato') : '');
+      const cls = ['cell', d.getMonth() !== month.getMonth() ? 'out' : '', s === today ? 'today' : '', hol ? 'hol' : '', blk ? 'blk' : ''].join(' ');
+      const chi = bars.filter(b => b.c0 <= i && i <= b.c1);
+      const aria = `${fLong.format(d)}${hol ? ', ' + hol : ''}${blk ? ', periodo bloccato' : ''}${chi.length ? ': ' + chi.map(b => b.nome).join(', ') : ''}`;
+      cells += `<button type="button" class="${cls}" style="grid-column:${i + 1}" data-day="${s}" aria-label="${esc(aria)}"><span class="n">${d.getDate()}</span>${lbl ? `<span class="tag${hol ? ' h' : ''}">${esc(lbl)}</span>` : ''}</button>`;
+      if(hidden[i]) fg += `<span class="more" style="grid-column:${i + 1};grid-row:${vis + 2}">+${hidden[i]}</span>`;
+    });
+    bars.filter(b => b.lane < vis).forEach(b => {
+      const n = b.c1 - b.c0 + 1;
+      const txt = b.k === 'e' || n >= 2 ? b.nome : firstName(b.nome);
+      fg += `<span class="bar ${b.k}${b.cl ? ' cl' : ''}${b.cr ? ' cr' : ''}" style="grid-column:${b.c0 + 1} / span ${n};grid-row:${b.lane + 2}" ${b.k === 'e' ? 'data-ev' : 'data-id'}="${b.id}" title="${esc(b.nome)}">${esc(txt)}</span>`;
+    });
+    h += `<div class="wk" style="grid-template-rows:${rows}">${cells}${fg}</div>`;
   }
   $('grid').innerHTML = h;
-  // Tocchi un nome → apri quella ferie; tocchi il resto del giorno → elenco del giorno.
-  $('grid').querySelectorAll('[data-day]').forEach(b => b.onclick = e => {
-    const chip = e.target.closest('.who[data-id]'), evc = e.target.closest('.who[data-ev]');
-    if(chip) openReq(chip.dataset.id); else if(evc) openEv(evc.dataset.ev); else openDay(b.dataset.day);
-  });
+  // Tocchi una barra → apri quella ferie o evento; tocchi il resto del giorno → elenco del giorno.
+  $('grid').querySelectorAll('.bar[data-id]').forEach(b => b.onclick = () => openReq(b.dataset.id));
+  $('grid').querySelectorAll('.bar[data-ev]').forEach(b => b.onclick = () => openEv(b.dataset.ev));
+  $('grid').querySelectorAll('[data-day]').forEach(b => b.onclick = () => openDay(b.dataset.day));
 }
 
 function openDay(s){
