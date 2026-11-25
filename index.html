@@ -1064,7 +1064,8 @@ function renderRie(){
     <h3 class="section-h" style="font-size:1rem;margin-top:6px">Le mie ferie</h3>
     <div class="sum"><div class="stat"><b>${tot.g}</b><span>giorni goduti</span></div><div class="stat"><b>${tot.f}</b><span>già fatti</span></div><div class="stat"><b>${tot.p}</b><span>in programma</span></div>${tot.a ? `<div class="stat"><b>${tot.a}</b><span>in attesa</span></div>` : ''}</div>`;
   // Grafico a colonne: chi ne ha fatte di più. Verde pieno = già fatte, verde chiaro = in programma, giallo = in attesa.
-  const ord = [...ppl].sort((a, b) => b.c.goduti - a.c.goduti || b.c.att - a.c.att || a.nome.localeCompare(b.nome));
+  // Nel grafico solo le persone: niente account del locale (Cactus Cafe).
+  const ord = ppl.filter(p => !/^cactus/i.test(p.email) && !/cactus\s*caf/i.test(p.nome)).sort((a, b) => b.c.goduti - a.c.goduti || b.c.att - a.c.att || a.nome.localeCompare(b.nome));
   const maxG = Math.max(1, ...ord.map(p => p.c.goduti + p.c.att));
   const pct = n => (n / maxG * 100).toFixed(1) + '%';
   h += `<h3 class="section-h" style="font-size:1rem">Chi ne ha fatte di più</h3>
