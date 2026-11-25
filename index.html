@@ -1041,12 +1041,16 @@ function renderRie(){
   if(!admin){ $('v-rie').innerHTML = ''; return; }
   const y = gesYear, aperti = new Set([...$('v-rie').querySelectorAll('details[open]')].map(d => d.dataset.email));
   const ppl = persone().map(p => ({ ...p, c: riepilogo(p.email, y) }));
-  const tot = ppl.reduce((s, p) => ({ g: s.g + p.c.goduti, f: s.f + p.c.fatti, p: s.p + p.c.prog, a: s.a + p.c.att }), { g: 0, f: 0, p: 0, a: 0 });
+  // In alto solo i miei numeri; sotto il riepilogo di tutti, persona per persona.
+  const mio = riepilogo(me.email, y);
+  const tot = { g: mio.goduti, f: mio.fatti, p: mio.prog, a: mio.att };
   const stTxt = { done: 'fatte', mid: 'in corso', prog: 'in programma', att: 'in attesa' };
   let h = `<h2 class="section-h">Ferie godute</h2>
     <div class="yearbar"><button class="icon-btn" id="yPrev" type="button" aria-label="Anno precedente">‹</button><b>${y}</b><button class="icon-btn" id="yNext" type="button" aria-label="Anno successivo">›</button><span class="hint">Contano solo i giorni dentro le ferie di ognuno.</span></div>
     <p class="sub">"Godute" sono le ferie confermate: quelle già fatte più quelle in programma. Tocca un nome per vedere i periodi.</p>
-    <div class="sum"><div class="stat"><b>${tot.g}</b><span>giorni goduti in tutto</span></div><div class="stat"><b>${tot.f}</b><span>già fatti</span></div><div class="stat"><b>${tot.p}</b><span>in programma</span></div>${tot.a ? `<div class="stat"><b>${tot.a}</b><span>in attesa</span></div>` : ''}</div>`;
+    <h3 class="section-h" style="font-size:1rem;margin-top:6px">Le mie ferie</h3>
+    <div class="sum"><div class="stat"><b>${tot.g}</b><span>giorni goduti</span></div><div class="stat"><b>${tot.f}</b><span>già fatti</span></div><div class="stat"><b>${tot.p}</b><span>in programma</span></div>${tot.a ? `<div class="stat"><b>${tot.a}</b><span>in attesa</span></div>` : ''}</div>`;
+  h += `<h3 class="section-h" style="font-size:1rem">Persona per persona</h3>`;
   h += ppl.map(p => {
     const c = p.c;
     const dett = [c.fatti ? `${c.fatti} fatti` : '', c.prog ? `${c.prog} in programma` : '', c.att ? `${c.att} in attesa` : ''].filter(Boolean).join(' · ') || 'nessuna ferie segnata';
