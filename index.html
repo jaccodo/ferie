@@ -1143,15 +1143,15 @@ function renderRie(){
   const stTxt = { done: 'fatte', mid: 'in corso', prog: 'in programma', att: 'in attesa' };
   let h = `<h2 class="section-h">Ferie godute</h2>
     <div class="yearbar"><button class="icon-btn" id="yPrev" type="button" aria-label="Anno precedente">‹</button><b>${y}</b><button class="icon-btn" id="yNext" type="button" aria-label="Anno successivo">›</button><span class="hint">Contano solo i giorni dentro le ferie di ognuno.</span></div>
-    <p class="sub">"Godute" sono le ferie confermate: quelle già fatte più quelle in programma. Tocca un nome per vedere i periodi.</p>
-    <h3 class="section-h" style="font-size:1rem;margin-top:6px">Le mie ferie</h3>
+    <p class="sub">Ogni anno si riparte da zero il 1° gennaio: qui contano solo i giorni del ${y}. "Godute" sono le ferie confermate: già fatte più quelle in programma fino al 31 dicembre. Tocca un nome per vedere i periodi.</p>
+    <h3 class="section-h" style="font-size:1rem;margin-top:6px">Le mie ferie ${y}</h3>
     <div class="sum"><div class="stat"><b>${tot.g}</b><span>giorni goduti</span></div><div class="stat"><b>${tot.f}</b><span>già fatti</span></div><div class="stat"><b>${tot.p}</b><span>in programma</span></div>${tot.a ? `<div class="stat"><b>${tot.a}</b><span>in attesa</span></div>` : ''}</div>`;
   // Grafico a colonne: riepilogo ferie per persona. Verde pieno = già fatte, verde chiaro = in programma, giallo = in attesa.
   // Nel grafico solo le persone: niente account del locale (Cactus Cafe).
   const ord = ppl.filter(p => !/^cactus/i.test(p.email) && !/cactus\s*caf/i.test(p.nome)).sort((a, b) => b.c.goduti - a.c.goduti || b.c.att - a.c.att || a.nome.localeCompare(b.nome));
   const maxG = Math.max(1, ...ord.map(p => p.c.goduti + p.c.att));
   const pct = n => (n / maxG * 100).toFixed(1) + '%';
-  h += `<h3 class="section-h" style="font-size:1rem">Riepilogo ferie</h3>
+  h += `<h3 class="section-h" style="font-size:1rem">Riepilogo ferie ${y}</h3>
     <div class="chart" role="img" aria-label="${esc(ord.map(p => `${p.nome}: ${p.c.goduti} giorni goduti`).join(', '))}">
       ${ord.map(p => `<div class="col"><span class="v">${p.c.goduti || ''}${p.c.att ? `<small>+${p.c.att}</small>` : ''}</span>
         <div class="stack" title="${esc(p.nome)}: ${p.c.fatti} fatti, ${p.c.prog} in programma${p.c.att ? ', ' + p.c.att + ' in attesa' : ''}">
@@ -1159,7 +1159,7 @@ function renderRie(){
         </div><span class="n">${esc(firstName(p.nome))}</span></div>`).join('')}
     </div>
     <div class="chart-key"><span><i class="sf"></i>già fatte</span><span><i class="sp"></i>in programma</span><span><i class="sa"></i>in attesa</span></div>`;
-  h += `<h3 class="section-h" style="font-size:1rem">Persona per persona</h3>`;
+  h += `<h3 class="section-h" style="font-size:1rem">Persona per persona ${y}</h3>`;
   h += ppl.map(p => {
     const c = p.c;
     const dett = [c.fatti ? `${c.fatti} fatti` : '', c.prog ? `${c.prog} in programma` : '', c.att ? `${c.att} in attesa` : ''].filter(Boolean).join(' · ') || 'nessuna ferie segnata';
