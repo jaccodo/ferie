@@ -445,6 +445,25 @@ details.decise summary{cursor:pointer;font-weight:700;color:var(--muted);padding
   </form>
 </div>
 
+<!-- foglio: modifica date di una ferie -->
+<div class="sheet" id="editSheet" hidden>
+  <div class="scrim" data-close></div>
+  <form class="panel" id="editForm" role="dialog" aria-modal="true" aria-labelledby="editTitle" novalidate>
+    <button class="x" type="button" data-close aria-label="Chiudi">×</button>
+    <button class="linkback" id="editBack" type="button">‹ Torna alla ferie</button>
+    <h3 id="editTitle">Modifica date</h3>
+    <p class="hint" id="editHint"></p>
+    <div class="row2">
+      <div class="field"><label for="mDal">Dal</label><input type="date" id="mDal" required></div>
+      <div class="field"><label for="mAl">Al (compreso)</label><input type="date" id="mAl" required></div>
+    </div>
+    <div class="blocked-warn" id="mBlocked" hidden></div>
+    <div class="overlap" id="mOverlap" hidden></div>
+    <p class="err" id="mErr" hidden></p>
+    <div class="actions"><button class="btn accent" type="submit" id="mSend">Salva le nuove date</button><button class="btn ghost" type="button" data-close>Annulla</button></div>
+  </form>
+</div>
+
 <!-- foglio: account -->
 <div class="sheet" id="menuSheet" hidden>
   <div class="scrim" data-close></div>
@@ -591,6 +610,7 @@ function goBack(){
     if(open){
       if(open.id === 'reqSheet' && !$('reqBack').hidden) $('reqBack').onclick();
       else if(open.id === 'evSheet' && !$('evBack').hidden) $('evBack').onclick();
+      else if(open.id === 'editSheet' && !$('editBack').hidden) $('editBack').onclick();
       else closeSheets();
       return true;
     }
@@ -909,13 +929,71 @@ function openReq(id){
     const m = $('reqBody').querySelector('[data-motivo]'); if(m && same) m.value = motivo;
   } else {
     $('reqBody').innerHTML = `<div class="card"><div class="card-top"><div><div class="person"><i class="dot" style="--c:${statoCol(r)}"></i>${esc(nm(r))}</div><div class="range">${esc(rangeTxt(r))}</div><div class="meta">${daysTxt(r)}</div></div><span class="pill ${r.stato}">${statoTxt(r)}</span></div>
-      ${isMine(r) && r.stato === 'proposta' ? `<div class="meta" style="margin-top:8px">La decidiamo ${esc(nextWednesday())}. La trovi anche in "Le mie".</div>` : ''}</div>`;
+      ${isMine(r) && r.stato === 'proposta' ? `<div class="meta" style="margin-top:8px">La decidiamo ${esc(nextWednesday())}. La trovi anche in "Le mie".</div><div class="actions"><button class="btn ghost" data-mod="${r.id}" type="button">Modifica date</button></div>` : ''}</div>`;
+    const mb = $('reqBody').querySelector('[data-mod]'); if(mb) mb.onclick = () => openEdit(r.id);
   }
   $('reqBack').hidden = !back;
   $('reqBack').onclick = () => openDay(back);
   showSheet('reqSheet');
   dayOpen = back;
 }
+
+/* ---------- modifica date di una ferie ---------- */
+// Titolari: qualsiasi ferie (anche confermata, si sposta anche nel Google Calendar). Dipendenti: solo le proprie proposte in attesa.
+let editId = null;
+function openEdit(id){
+  const r = R.find(x => x.id === id); if(!r) return;
+  if(!admin && !(isMine(r) && r.stato === 'proposta')) return;
+  const daReq = !$('reqSheet').hidden && reqOpen === id;
+  editId = id;
+  $('editTitle').textContent = `Modifica date – ${firstName(nm(r))}`;
+  $('editHint').textContent = r.stato === 'confermata'
+    ? `Ora: ${rangeTxt(r)}. Le nuove date vanno anche nel Google Calendar. Nessuna mail.`
+    : `Ora: ${rangeTxt(r)}. La proposta resta in attesa con le nuove date.`;
+  $('mDal').min = admin ? '' : TODAY(); $('mAl').min = r.dal;
+  $('mDal').value = r.dal; $('mAl').value = r.al;
+  $('mErr').hidden = true; $('mSend').disabled = false;
+  $('editBack').hidden = !daReq;
+  $('editBack').onclick = () => openReq(id);
+  showSheet('editSheet');
+  checkEdit();
+}
+function checkEdit(){
+  const r = R.find(x => x.id === editId); if(!r) return;
+  const dal = $('mDal').value; if(dal){ $('mAl').min = dal; if(!$('mAl').value || $('mAl').value < dal) $('mAl').value = dal; }
+  const p = { dal, al: $('mAl').value };
+  if(!p.dal || !p.al){ $('mOverlap').hidden = true; $('mBlocked').hidden = true; return; }
+  const blk = blocchiIn(p);
+  $('mBlocked').hidden = !blk.length;
+  $('mBlocked').innerHTML = blk.length ? (admin ? 'Attenzione, periodo bloccato: ' : 'Non puoi proporre ferie in un periodo bloccato: ') + blk.map(b => esc(bloccoTxt(b))).join(', ') : '';
+  const others = R.filter(x => x.id !== r.id && x.email !== r.email && x.stato === 'confermata' && overlaps(x, p)).sort((a, b) => a.dal.localeCompare(b.dal));
+  $('mOverlap').hidden = false;
+  $('mOverlap').className = 'overlap ' + (others.length ? 'some' : 'none');
+  $('mOverlap').innerHTML = `${daysTxt(p)}. ` + (others.length ? `In questo periodo sono già in ferie:<ul>${others.map(x => `<li><span><b>${esc(nm(x))}</b> ${esc(rangeTxt(x))}</span></li>`).join('')}</ul>` : 'Nessun collega è già in ferie in questo periodo.');
+}
+$('mDal').oninput = checkEdit; $('mAl').oninput = checkEdit;
+$('editForm').onsubmit = async e => {
+  e.preventDefault();
+  const r = R.find(x => x.id === editId); if(!r) return closeSheets();
+  const dal = $('mDal').value, al = $('mAl').value;
+  const err = m => { $('mErr').textContent = m; $('mErr').hidden = false; };
+  if(!dal || !al) return err('Indica il primo e l\'ultimo giorno di ferie.');
+  if(al < dal) return err('L\'ultimo giorno è prima del primo.');
+  if(dal === r.dal && al === r.al) return closeSheets();
+  if(!admin && dal < TODAY()) return err('Il periodo deve iniziare da oggi in poi.');
+  if(!admin && blocchiIn({ dal, al }).length) return err('Il periodo tocca un periodo bloccato: scegli altre date o parlane con i titolari.');
+  const dup = R.find(x => x.id !== r.id && x.email === r.email && x.stato !== 'rifiutata' && overlaps(x, { dal, al }));
+  if(dup) return err(`${isMine(r) ? 'Hai' : firstName(nm(r)) + ' ha'} già un'altra richiesta in questo periodo (${rangeTxt(dup)}).`);
+  $('mSend').disabled = true;
+  if(r.eventoId){
+    try{ await backend.moveEvent(r.eventoId, dal, al); }
+    catch(e2){
+      if(!confirm(`Non sono riuscito a spostare l'evento nel Google Calendar (${e2.message || 'errore'}).\n\nSalvo lo stesso le nuove date nell'app? Nel calendario resteranno quelle vecchie.`)){ $('mSend').disabled = false; return; }
+    }
+  }
+  try{ await backend.update(r.id, { dal, al }); closeSheets(); toast(`Date aggiornate: ${rangeTxt({ dal, al })}`); }
+  catch(e2){ $('mSend').disabled = false; err('Salvataggio non riuscito: ' + (e2.message || 'riprova')); }
+};
 
 /* ---------- le mie richieste ---------- */
 function statoTxt(r){ return { proposta:'In attesa', confermata:'Confermata', rifiutata:'Non confermata' }[r.stato] || r.stato; }
@@ -929,7 +1007,8 @@ function renderMie(){
       ${r.stato === 'proposta' ? `<div class="meta" style="margin-top:8px">La decidiamo ${esc(nextWednesday())}.</div>` : ''}
       ${r.stato === 'rifiutata' && r.motivo ? `<div class="note"><b>Motivo</b>${esc(r.motivo)}</div>` : ''}
       ${NOTE[r.id] ? `<div class="note"><b>La tua nota per i titolari</b>${esc(NOTE[r.id])}</div>` : ''}
-      ${r.stato === 'proposta' ? `<div class="actions"><button class="btn ghost" data-ritira="${r.id}" type="button">Ritira la proposta</button></div>` : ''}
+      ${r.stato === 'proposta' ? `<div class="actions"><button class="btn ghost" data-mod="${r.id}" type="button">Modifica date</button><button class="btn ghost" data-ritira="${r.id}" type="button">Ritira la proposta</button></div>`
+        : admin && r.stato === 'confermata' ? `<div class="actions"><button class="btn ghost" data-mod="${r.id}" type="button">Modifica date</button></div>` : ''}
     </div>`;
   let h = `<div class="sum"><div class="stat"><b>${conf}</b><span>giorni confermati nel ${y}</span></div><div class="stat"><b>${att}</b><span>giorni in attesa</span></div></div>`;
   if(!mine.length) h += `<div class="empty"><b>Nessuna richiesta</b>Tocca "${admin ? 'Segna' : 'Proponi'} ferie" per indicare il periodo che vorresti.</div>`;
@@ -938,6 +1017,7 @@ function renderMie(){
     if(past.length) h += `<details class="decise"><summary>Passate (${past.length})</summary>${past.map(card).join('')}</details>`;
   }
   $('v-mie').innerHTML = h;
+  $('v-mie').querySelectorAll('[data-mod]').forEach(b => b.onclick = () => openEdit(b.dataset.mod));
   $('v-mie').querySelectorAll('[data-ritira]').forEach(b => b.onclick = async () => {
     const r = R.find(x => x.id === b.dataset.ritira); if(!r) return;
     if(!confirm(`Ritiri la proposta ${rangeTxt(r)}?`)) return;
@@ -976,6 +1056,7 @@ function adminCard(r){
       <div class="actions">
         <button class="btn ok" data-ok type="button">Conferma</button>
         <button class="btn no" data-no type="button">Non confermare</button>
+        <button class="btn ghost" data-mod type="button">Modifica date</button>
         <input class="motivo" data-motivo placeholder="Motivo (se non confermi, lo vede la persona)" maxlength="300">
       </div>
     </div>`;
@@ -983,6 +1064,7 @@ function adminCard(r){
       ${r.stato === 'rifiutata' && r.motivo ? `<div class="note"><b>Motivo</b>${esc(r.motivo)}</div>` : ''}
       <div class="actions">
         ${r.stato === 'confermata' && !r.eventoId ? `<span class="calwarn">Non è nel Google Calendar</span><button class="btn ghost" data-cal type="button">Aggiungi al calendario</button>` : ''}
+        ${r.stato === 'confermata' ? `<button class="btn ghost" data-mod type="button">Modifica date</button>` : ''}
         <button class="btn ghost" data-back type="button">Rimetti in attesa</button>
         <button class="btn no" data-del type="button">Elimina</button>
       </div>
@@ -994,6 +1076,7 @@ function wireAdminCards(box){
     const btns = [...c.querySelectorAll('button')];
     const busy = on => btns.forEach(b => b.disabled = on);
     const q = sel => c.querySelector(sel);
+    if(q('[data-mod]')) q('[data-mod]').onclick = () => openEdit(r.id);
     if(q('[data-ok]')) q('[data-ok]').onclick = async () => {
       busy(true);
       let eventoId = null, calErr = null;
@@ -1301,6 +1384,7 @@ function startDemo(){
     remove: async r => { R = R.filter(x => x.id !== r.id); delete allNote[r.id]; after(); },
     addEvent: async () => 'demo',
     addCalEvent: async () => 'demo',
+    moveEvent: async () => {},
     delEvent: async () => {},
     addEvento: async e => { EVENTI = [...EVENTI, { ...e, id: id() }]; after(); },
     updEvento: async (eid, patch) => { EVENTI = EVENTI.map(e => e.id === eid ? { ...e, ...patch } : e); after(); },
@@ -1400,6 +1484,8 @@ async function startFirebase(){
         }) });
         return ev.id;
       },
+      // Sposta le date di un evento ferie già nel calendario (diventa di giornata intera, come quelli creati dall'app).
+      moveEvent: (id, dal, al) => calFetch('/' + encodeURIComponent(id), { method:'PATCH', body: JSON.stringify({ start: { date: dal, dateTime: null }, end: { date: addDays(al, 1), dateTime: null } }) }),
       addEvento: e => run(S.addDoc(evC, e)),
       updEvento: (id, patch) => run(S.updateDoc(S.doc(evC, id), patch)),
       delEvento: id => run(S.deleteDoc(S.doc(evC, id))),
