@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+<!-- Icona dell'app Ferie: aereo con scia e sole. Aereo: icona "flight" di Material Icons (Apache 2.0). -->
+<rect width="512" height="512" fill="#24365a"/>
+<circle cx="380" cy="132" r="42" fill="#f2c94c"/>
+<path d="M112 408 L196 324" stroke="#ffffff" stroke-opacity=".45" stroke-width="12" stroke-linecap="round" stroke-dasharray="1 30" fill="none"/>
+<g transform="translate(262 250) rotate(45) scale(10.5) translate(-12 -12)"><path fill="#ffffff" d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></g>
+</svg>
