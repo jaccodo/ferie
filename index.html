@@ -19,7 +19,7 @@
   --bg:#f4f5f7; --surface:#ffffff; --fg:#1b1f27; --muted:#5d6470; --line:#e2e5eb; --soft:#eef0f4;
   --band:#1c2230; --band-fg:#f3f5f9; --band-muted:#9aa3b5;
   --accent:#1c2230; --accent-soft:#e9ecf2; --accent-fg:#1c2230; --on-accent:#ffffff;
-  --good:#188046; --good-soft:#e3f3e9; --bad:#c62828; --bad-soft:#fde7e7; --warn:#8a5a00; --warn-soft:#fdf0d3; --pend:#c99700; --pend-fg:#6e5300; --ev:#2f6fd0; --perm:#7b52c7;
+  --good:#188046; --good-soft:#e3f3e9; --bad:#c62828; --bad-soft:#fde7e7; --warn:#8a5a00; --warn-soft:#fdf0d3; --pend:#c99700; --pend-fg:#6e5300; --ev:#2f6fd0;
   --p0:#2f7d5b; --p1:#c0562f; --p2:#3b6fb6; --p3:#a8437f; --p4:#8a7a18; --p5:#6a52b8; --p6:#1f8a99; --p7:#b5435a; --p8:#5d7a2a;
   --f-display:"Fraunces", Georgia, "Times New Roman", serif;
   --f-body:"Manrope", "Segoe UI", system-ui, -apple-system, sans-serif;
@@ -28,13 +28,13 @@
   --bg:#0f1115; --surface:#181b22; --fg:#e9ecf2; --muted:#9aa1ae; --line:#2a2f3a; --soft:#20242d;
   --band:#161a22; --band-fg:#eef1f6; --band-muted:#8e97a8;
   --accent:#e9ecf2; --accent-soft:#262c38; --accent-fg:#e9ecf2; --on-accent:#12151c;
-  --good:#43b97a; --good-soft:#13291c; --bad:#f07070; --bad-soft:#3a1818; --warn:#f0c15f; --warn-soft:#382a10; --pend:#f2c94c; --pend-fg:#f2c94c; --ev:#6fa0ee; --perm:#ad8ef0;
+  --good:#43b97a; --good-soft:#13291c; --bad:#f07070; --bad-soft:#3a1818; --warn:#f0c15f; --warn-soft:#382a10; --pend:#f2c94c; --pend-fg:#f2c94c; --ev:#6fa0ee;
   --p0:#5cc095; --p1:#ec8a62; --p2:#79a4e6; --p3:#df7fb6; --p4:#cfbf55; --p5:#a591ea; --p6:#5cc3d1; --p7:#ea8196; --p8:#9fc05e; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0f1115; --surface:#181b22; --fg:#e9ecf2; --muted:#9aa1ae; --line:#2a2f3a; --soft:#20242d;
   --band:#161a22; --band-fg:#eef1f6; --band-muted:#8e97a8;
   --accent:#e9ecf2; --accent-soft:#262c38; --accent-fg:#e9ecf2; --on-accent:#12151c;
-  --good:#43b97a; --good-soft:#13291c; --bad:#f07070; --bad-soft:#3a1818; --warn:#f0c15f; --warn-soft:#382a10; --pend:#f2c94c; --pend-fg:#f2c94c; --ev:#6fa0ee; --perm:#ad8ef0;
+  --good:#43b97a; --good-soft:#13291c; --bad:#f07070; --bad-soft:#3a1818; --warn:#f0c15f; --warn-soft:#382a10; --pend:#f2c94c; --pend-fg:#f2c94c; --ev:#6fa0ee;
   --p0:#5cc095; --p1:#ec8a62; --p2:#79a4e6; --p3:#df7fb6; --p4:#cfbf55; --p5:#a591ea; --p6:#5cc3d1; --p7:#ea8196; --p8:#9fc05e; color-scheme:dark}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
@@ -214,13 +214,12 @@ details.decise summary{cursor:pointer;font-weight:700;color:var(--muted);padding
 .bar.c{background:var(--good);color:#fff}
 .bar.p{background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--pend) 26%,var(--surface)) 0 5px,color-mix(in srgb,var(--pend) 10%,var(--surface)) 5px 10px);color:var(--pend-fg);box-shadow:inset 0 0 0 1.5px var(--pend)}
 .bar.e{background:var(--ev);color:#fff}
-.bar.q{background:var(--perm);color:#fff}
 .bar.cl{margin-left:0;border-top-left-radius:0;border-bottom-left-radius:0}
 .bar.cr{margin-right:0;border-top-right-radius:0;border-bottom-right-radius:0}
 .bar:hover{filter:brightness(1.08)}
 .wk .more{position:relative;z-index:1;pointer-events:none;align-self:center;font-size:.68rem;font-weight:700;color:var(--muted);padding-left:6px}
-:root[data-theme="dark"] .bar.c,:root[data-theme="dark"] .bar.e,:root[data-theme="dark"] .bar.q{color:#0f1115}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .bar.c,:root:not([data-theme="light"]) .bar.e,:root:not([data-theme="light"]) .bar.q{color:#0f1115}}
+:root[data-theme="dark"] .bar.c,:root[data-theme="dark"] .bar.e{color:#0f1115}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .bar.c,:root:not([data-theme="light"]) .bar.e{color:#0f1115}}
 @media (min-width:700px){.cell{align-items:flex-start;padding:4px 0 0 6px}.cell .tag{display:block;max-width:100%;font-size:.62rem;font-weight:700;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 6px 0 2px}.cell .tag.h{color:var(--bad)}.cell{flex-direction:row;align-items:flex-start;justify-content:flex-start}}
 .legend .bar{display:inline-block;height:18px;line-height:18px;margin:0 4px 0 0;vertical-align:middle;cursor:default;font-size:.68rem}
 /* Colori uguali per tutti: giallo = in attesa, verde = confermate, rosso = festività, grigio a righe = bloccato */
@@ -328,7 +327,6 @@ details.decise summary{cursor:pointer;font-weight:700;color:var(--muted);padding
       <button class="tab" role="tab" data-tab="mie" aria-selected="false">Le mie</button>
       <button class="tab" role="tab" data-tab="dec" aria-selected="false" id="tabDec" hidden>Da decidere <span class="badge" id="decCount" hidden>0</span></button>
       <button class="tab" role="tab" data-tab="rie" aria-selected="false" id="tabRie" hidden>Riepilogo</button>
-      <button class="tab" role="tab" data-tab="p104" aria-selected="false" id="tabP104" hidden>104</button>
       <button class="tab" role="tab" data-tab="ges" aria-selected="false" id="tabGes" hidden>Gestione</button>
     </nav>
   </div>
@@ -354,7 +352,6 @@ details.decise summary{cursor:pointer;font-weight:700;color:var(--muted);padding
         <span><span class="bar c">Nome</span>ferie confermate</span>
         <span><span class="bar p">Nome</span><span id="legendProp">tua proposta in attesa</span></span>
         <span><span class="bar e">Evento</span>evento</span>
-        <span><span class="bar q">Nome</span><span id="legendPerm">permesso</span></span>
         <span><span class="sw hol"></span> festività</span>
         <span><span class="sw blk"></span> periodo bloccato</span>
       </div>
@@ -363,7 +360,6 @@ details.decise summary{cursor:pointer;font-weight:700;color:var(--muted);padding
     <section id="v-mie" hidden></section>
     <section id="v-dec" hidden></section>
     <section id="v-rie" hidden></section>
-    <section id="v-p104" hidden></section>
     <section id="v-ges" hidden></section>
   </div>
 </main>
@@ -571,7 +567,6 @@ let NOTE = {};       // id richiesta -> testo nota
 let STAFF = {};      // email -> { nome, ruolo }
 let BLOCCHI = [];    // periodi bloccati { id, dal, al, motivo }
 let EVENTI = [];     // eventi { id, titolo, dal, al, ora, oraFine, note, eventoId }
-let PERMESSI = [];   // permessi 104 { id, email, nome, dal, al, ore, nota } — solo nel calendario dell'app, mai nel Google Calendar
 let me = null;       // { uid, email, nome }
 let admin = false;
 let backend = null;
@@ -602,7 +597,7 @@ document.querySelectorAll('.tab').forEach(b => b.onclick = () => { if(b.dataset.
 function setTab(t){
   tab = t;
   document.querySelectorAll('.tab').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === t));
-  ['cal','mie','dec','rie','p104','ges'].forEach(v => $('v-'+v).hidden = v !== t);
+  ['cal','mie','dec','rie','ges'].forEach(v => $('v-'+v).hidden = v !== t);
   salvaVista();
   document.querySelector(`.tab[data-tab="${t}"]`)?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
   render();
@@ -628,7 +623,7 @@ function goBack(){
     if(tab === 'cal' && calLevel !== 'm'){ zoomIn(null); return true; }
     while(tabHist.length){
       const t = tabHist.pop();
-      if(t !== tab && (admin || (t !== 'dec' && t !== 'rie' && t !== 'p104' && t !== 'ges'))){ setTab(t); return true; }
+      if(t !== tab && (admin || (t !== 'dec' && t !== 'rie' && t !== 'ges'))){ setTab(t); return true; }
     }
     if(tab !== 'cal'){ setTab('cal'); return true; }
     return false;
@@ -642,8 +637,7 @@ addEventListener('popstate', () => {
 function render(){
   if(!me) return;
   $('roleLbl').textContent = admin ? 'titolari' : '';
-  $('tabDec').hidden = !admin; $('tabRie').hidden = !admin; $('tabP104').hidden = !admin; $('tabGes').hidden = !admin;
-  $('legendPerm').textContent = admin ? 'permesso 104' : 'permesso';
+  $('tabDec').hidden = !admin; $('tabRie').hidden = !admin; $('tabGes').hidden = !admin;
   $('legendProp').textContent = admin ? 'proposta in attesa' : 'tua proposta in attesa';
   $('fab').lastChild.textContent = admin ? ' Segna ferie' : ' Proponi ferie';
   const pend = R.filter(r => r.stato === 'proposta');
@@ -652,7 +646,6 @@ function render(){
   if(tab === 'mie') renderMie();
   if(tab === 'dec') renderDec();
   if(tab === 'rie') renderRie();
-  if(tab === 'p104') renderP104();
   if(tab === 'ges') renderGes();
   if(dayOpen && !$('daySheet').hidden) openDay(dayOpen);
   if(reqOpen && !$('reqSheet').hidden) openReq(reqOpen);
@@ -672,7 +665,7 @@ function salvaVista(){ try{ sessionStorage.setItem(VISTA_KEY, JSON.stringify({ t
   try{
     const v = JSON.parse(sessionStorage.getItem(VISTA_KEY) || 'null');
     if(!v) return;
-    if(['cal','mie','dec','rie','p104','ges'].includes(v.tab)) tab = v.tab;
+    if(['cal','mie','dec','rie','ges'].includes(v.tab)) tab = v.tab;
     if(/^\d{4}-\d{2}-\d{2}$/.test(v.m || '')) month = parse(v.m);
     if(['m','y','a'].includes(v.l)) calLevel = v.l;
     if(Number.isInteger(v.ys)) yearsStart = v.ys;
@@ -794,7 +787,6 @@ function renderCal(){
   const items = [
     ...R.filter(visibleOnCal).map(r => ({ k: r.stato === 'confermata' ? 'c' : 'p', id: r.id, dal: r.dal, al: r.al, nome: nm(r) })),
     ...EVENTI.map(e => ({ k: 'e', id: e.id, dal: e.dal, al: e.al, nome: wide ? evTxt(e) : e.titolo })),
-    ...PERMESSI.map(p => ({ k: 'q', id: p.id, dal: p.dal, al: p.al, nome: permTxt(p) })),
   ];
   let h = `<div class="cal-dow">${['lun','mar','mer','gio','ven','sab','dom'].map(d => `<div class="dow">${d}</div>`).join('')}</div>`;
   for(let w = 0; w < 6; w++){
@@ -829,8 +821,8 @@ function renderCal(){
     });
     bars.filter(b => b.lane < vis).forEach(b => {
       const n = b.c1 - b.c0 + 1;
-      const txt = b.k === 'e' || b.k === 'q' || n >= 2 ? b.nome : firstName(b.nome);
-      fg += `<span class="bar ${b.k}${b.cl ? ' cl' : ''}${b.cr ? ' cr' : ''}" style="grid-column:${b.c0 + 1} / span ${n};grid-row:${b.lane + 2}" ${b.k === 'e' ? 'data-ev' : b.k === 'q' ? 'data-perm' : 'data-id'}="${b.id}" title="${esc(b.nome)}">${esc(txt)}</span>`;
+      const txt = b.k === 'e' || n >= 2 ? b.nome : firstName(b.nome);
+      fg += `<span class="bar ${b.k}${b.cl ? ' cl' : ''}${b.cr ? ' cr' : ''}" style="grid-column:${b.c0 + 1} / span ${n};grid-row:${b.lane + 2}" ${b.k === 'e' ? 'data-ev' : 'data-id'}="${b.id}" title="${esc(b.nome)}">${esc(txt)}</span>`;
     });
     h += `<div class="wk" style="grid-template-rows:${rows}">${cells}${fg}</div>`;
   }
@@ -838,7 +830,6 @@ function renderCal(){
   // Tocchi una barra → apri quella ferie o evento; tocchi il resto del giorno → elenco del giorno.
   $('grid').querySelectorAll('.bar[data-id]').forEach(b => b.onclick = () => openReq(b.dataset.id));
   $('grid').querySelectorAll('.bar[data-ev]').forEach(b => b.onclick = () => openEv(b.dataset.ev));
-  $('grid').querySelectorAll('.bar[data-perm]').forEach(b => b.onclick = () => openPerm(b.dataset.perm));
   $('grid').querySelectorAll('[data-day]').forEach(b => b.onclick = () => openDay(b.dataset.day));
 }
 
@@ -849,13 +840,11 @@ function openDay(s){
   $('dayInfo').innerHTML = (hol ? `<div class="dayinfo h">Festività: ${esc(hol)}</div>` : '') + blk.map(b => `<div class="dayinfo b">Periodo bloccato: ${esc(bloccoTxt(b))}</div>`).join('');
   const here = R.filter(visibleOnCal).filter(r => r.dal <= s && s <= r.al);
   const evs = eventiDel(s);
-  const perm = PERMESSI.filter(p => p.dal <= s && s <= p.al).sort((a, b) => nomeDi(a.email, a.nome).localeCompare(nomeDi(b.email, b.nome)));
-  $('dayList').innerHTML = perm.map(p => `<li><button type="button" class="dayitem" data-perm="${p.id}"><span class="person"><i class="dot" style="--c:var(--perm)"></i>${esc(nomeDi(p.email, p.nome))}</span><span class="meta">${esc(permQuando(p))} ›</span></button></li>`).join('') + evs.map(e => `<li><button type="button" class="dayitem" data-ev="${e.id}"><span class="person"><i class="dot" style="--c:var(--ev)"></i>${esc(e.titolo)}</span><span class="meta">${esc(evQuando(e))} ›</span></button></li>`).join('')
+  $('dayList').innerHTML = evs.map(e => `<li><button type="button" class="dayitem" data-ev="${e.id}"><span class="person"><i class="dot" style="--c:var(--ev)"></i>${esc(e.titolo)}</span><span class="meta">${esc(evQuando(e))} ›</span></button></li>`).join('')
     + (here.length ? here.map(r => `<li><button type="button" class="dayitem" data-id="${r.id}"><span class="person"><i class="dot" style="--c:${statoCol(r)}"></i>${esc(nm(r))}</span><span class="meta">${r.stato === 'proposta' ? (admin ? '<b class="todo">da decidere</b> · ' : 'in attesa · ') : ''}${esc(rangeTxt(r))} ›</span></button></li>`).join('')
     : '<li><span class="meta">Nessuno in ferie in questo giorno.</span></li>');
   $('dayList').querySelectorAll('[data-id]').forEach(b => b.onclick = () => openReq(b.dataset.id));
   $('dayList').querySelectorAll('[data-ev]').forEach(b => b.onclick = () => openEv(b.dataset.ev));
-  $('dayList').querySelectorAll('[data-perm]').forEach(b => b.onclick = () => openPerm(b.dataset.perm));
   $('dayEvent').hidden = !admin;
   $('dayPropose').hidden = !admin && (s < TODAY() || blk.length > 0);   // i titolari possono segnare anche giorni passati
   $('dayPropose').textContent = admin ? 'Segna ferie da questo giorno' : 'Proponi ferie da questo giorno';
@@ -952,89 +941,6 @@ function openReq(id){
   $('reqBack').onclick = () => openDay(back);
   showSheet('reqSheet');
   dayOpen = back;
-}
-
-/* ---------- permessi 104 (li segnano i titolari; nel calendario dell'app, non nel Google Calendar) ---------- */
-// I colleghi vedono solo che la persona è assente ("permesso"); che sia una 104 lo vedono i titolari e la persona stessa.
-const vedo104 = p => admin || p.email === me?.email;
-const permTxt = p => `${nomeDi(p.email, p.nome)} · ${vedo104(p) ? '104' : 'permesso'}`;
-const permQuando = p => (vedo104(p) ? 'Permesso 104' : 'Permesso') + ' · ' + rangeTxt(p) + (p.ore ? ` · ${p.ore} ore` : '');
-const giorni104 = (email, y, m) => PERMESSI.filter(p => p.email === email).reduce((s, p) => {
-  if(m == null) return s + giorniNellAnno(p, y);
-  const a = `${y}-${pad(m + 1)}-01`, b = iso(new Date(y, m + 1, 0));
-  const da = p.dal > a ? p.dal : a, al = p.al < b ? p.al : b;
-  return s + (da > al ? 0 : nDays({ dal: da, al }));
-}, 0);
-function openPerm(id){
-  const p = PERMESSI.find(x => x.id === id); if(!p){ closeSheets(); return; }
-  const back = dayOpen;
-  $('evTitle').textContent = `${vedo104(p) ? 'Permesso 104' : 'Permesso'} – ${firstName(nomeDi(p.email, p.nome))}`;
-  $('evBody').innerHTML = `<div class="card"><div class="person"><i class="dot" style="--c:var(--perm)"></i>${esc(nomeDi(p.email, p.nome))}</div>
-      <div class="range">${esc(rangeTxt(p))}</div><div class="meta">${p.ore ? esc(p.ore) + ' ore' : daysTxt(p)}</div>
-      ${admin && p.nota ? `<div class="note evnote"><b>Nota (solo per voi)</b>${esc(p.nota)}</div>` : ''}
-      ${admin ? `<div class="actions"><button class="btn no" data-pdel type="button">Elimina permesso</button></div>` : ''}</div>`;
-  const del = $('evBody').querySelector('[data-pdel]');
-  if(del) del.onclick = async () => {
-    if(!confirm(`Elimini il permesso 104 di ${nomeDi(p.email, p.nome)} (${rangeTxt(p)})?`)) return;
-    del.disabled = true;
-    try{ await backend.delPermesso(p.id); closeSheets(); toast('Permesso eliminato'); }
-    catch(er){ del.disabled = false; toast('Non riuscito: ' + (er.message || 'riprova')); }
-  };
-  $('evBack').hidden = !back;
-  $('evBack').onclick = () => openDay(back);
-  showSheet('evSheet');
-  dayOpen = back;
-}
-let p104Year = new Date().getFullYear();
-function renderP104(){
-  if(!admin){ $('v-p104').innerHTML = ''; return; }
-  const y = p104Year, mesi = ['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'];
-  const ppl = persone().filter(p => !p.fuori && !/^cactus/i.test(p.email) && !/cactus\s*caf/i.test(p.nome));
-  const lista = PERMESSI.filter(p => giorniNellAnno(p, y) > 0).sort((a, b) => b.dal.localeCompare(a.dal));
-  const conChi = [...new Set(lista.map(p => p.email))].map(email => ({ email, nome: nomeDi(email, lista.find(p => p.email === email)?.nome), tot: giorni104(email, y) })).sort((a, b) => b.tot - a.tot || a.nome.localeCompare(b.nome));
-  const meseOra = new Date().getFullYear() === y ? new Date().getMonth() : null;
-  let h = `<h2 class="section-h">Permessi 104</h2>
-    <p class="sub">Li segnate voi quando un dipendente ve li chiede. Compaiono nel calendario dell'app (i colleghi vedono solo "permesso"), <b>non</b> nel Google Calendar e non contano come ferie.</p>
-    <form class="card" id="p104Form" novalidate>
-      <div class="field"><label for="qChi">Per chi</label><select id="qChi">${ppl.map(p => `<option value="${esc(p.email)}">${esc(p.nome)}</option>`).join('')}</select></div>
-      <div class="row2">
-        <div class="field"><label for="qDal">Dal</label><input type="date" id="qDal" required></div>
-        <div class="field"><label for="qAl">Al (compreso)</label><input type="date" id="qAl" required></div>
-      </div>
-      <div class="field"><label for="qOre">Ore (facoltative, se non è la giornata intera)</label><input id="qOre" inputmode="decimal" maxlength="5" placeholder="Es. 4"></div>
-      <div class="field"><label for="qNota">Nota (facoltativa, solo per voi)</label><input id="qNota" maxlength="200" placeholder="Es. visita del padre"></div>
-      <p class="err" id="qErr" hidden></p>
-      <div class="actions"><button class="btn accent" type="submit">Segna permesso 104</button></div>
-    </form>
-    <div class="yearbar"><button class="icon-btn" id="qPrev" type="button" aria-label="Anno precedente">‹</button><b>${y}</b><button class="icon-btn" id="qNext" type="button" aria-label="Anno successivo">›</button></div>`;
-  if(conChi.length) h += `<table class="tbl"><thead><tr><th>Persona</th>${meseOra != null ? `<th class="num">${mesi[meseOra]}</th>` : ''}<th class="num">Giorni nel ${y}</th></tr></thead><tbody>
-    ${conChi.map(c => `<tr><td><span class="person"><i class="dot" style="--c:var(--perm)"></i>${esc(c.nome)}</span></td>${meseOra != null ? `<td class="num">${giorni104(c.email, y, meseOra) || '–'}</td>` : ''}<td class="num"><b>${c.tot}</b></td></tr>`).join('')}</tbody></table>`;
-  h += `<h3 class="section-h" style="font-size:1rem">Elenco ${y}</h3>`;
-  h += lista.length ? `<ul class="daylist">${lista.map(p => `<li><button type="button" class="dayitem" data-perm="${p.id}"><span class="person"><i class="dot" style="--c:var(--perm)"></i>${esc(nomeDi(p.email, p.nome))}</span><span class="meta">${esc(rangeTxt(p))} · ${p.ore ? esc(p.ore) + ' ore' : daysTxt(p)} ›</span></button></li>`).join('')}</ul>`
-    : `<div class="empty">Nessun permesso 104 nel ${y}.</div>`;
-  $('v-p104').innerHTML = h;
-  $('qPrev').onclick = () => { p104Year--; renderP104(); };
-  $('qNext').onclick = () => { p104Year++; renderP104(); };
-  $('v-p104').querySelectorAll('[data-perm]').forEach(b => b.onclick = () => openPerm(b.dataset.perm));
-  $('qDal').oninput = () => { if(!$('qAl').value || $('qAl').value < $('qDal').value) $('qAl').value = $('qDal').value; $('qAl').min = $('qDal').value; };
-  $('p104Form').onsubmit = async e => {
-    e.preventDefault();
-    const err = m => { $('qErr').textContent = m; $('qErr').hidden = false; };
-    const email = $('qChi').value, dal = $('qDal').value, al = $('qAl').value, ore = $('qOre').value.trim().replace(',', '.'), nota = $('qNota').value.trim();
-    if(!email) return err('Scegli la persona.');
-    if(!dal || !al) return err('Indica il giorno (o il primo e l\'ultimo giorno).');
-    if(al < dal) return err('L\'ultimo giorno è prima del primo.');
-    if(ore && !(+ore > 0 && +ore <= 24)) return err('Le ore devono essere un numero, per esempio 4.');
-    const dup = PERMESSI.find(p => p.email === email && overlaps(p, { dal, al }));
-    if(dup) return err(`${firstName(nomeDi(email))} ha già un permesso 104 in questo periodo (${rangeTxt(dup)}).`);
-    const fer = R.find(r => r.email === email && r.stato === 'confermata' && overlaps(r, { dal, al }));
-    if(fer && !confirm(`${nomeDi(email)} è in ferie in quei giorni (${rangeTxt(fer)}). Segno lo stesso il permesso?`)) return;
-    e.submitter && (e.submitter.disabled = true);
-    try{
-      await backend.addPermesso({ email, nome: nomeDi(email), dal, al, ore: ore || '', nota, creata: new Date().toISOString(), creataDa: me.email });
-      toast(`Permesso 104 di ${firstName(nomeDi(email))} segnato`);
-    }catch(er){ e.submitter && (e.submitter.disabled = false); err('Non riuscito: ' + (er.message || 'riprova')); }
-  };
 }
 
 /* ---------- modifica date di una ferie ---------- */
@@ -1274,8 +1180,7 @@ function renderRie(){
   h += `<h3 class="section-h" style="font-size:1rem">Persona per persona ${y}</h3>`;
   h += ppl.map(p => {
     const c = p.c;
-    const g104 = giorni104(p.email, y);
-    const dett = [c.fatti ? `${c.fatti} fatti` : '', c.prog ? `${c.prog} in programma` : '', c.att ? `${c.att} in attesa` : '', g104 ? `${g104} gg di 104` : ''].filter(Boolean).join(' · ') || 'nessuna ferie segnata';
+    const dett = [c.fatti ? `${c.fatti} fatti` : '', c.prog ? `${c.prog} in programma` : '', c.att ? `${c.att} in attesa` : ''].filter(Boolean).join(' · ') || 'nessuna ferie segnata';
     const lista = c.righe.length ? c.righe.map(x => `<li><span>${esc(rangeTxt(x.r))} · ${giorni(x.n)}</span><span class="st ${x.st}">${stTxt[x.st]}</span></li>`).join('') : `<li><span class="meta">Nessuna ferie nel ${y}.</span></li>`;
     return `<details class="rie" data-email="${esc(p.email)}"${aperti.has(p.email) ? ' open' : ''}><summary><i class="dot" style="--c:${colorOf(p.email)}"></i><div class="who-col"><b>${esc(p.nome)}</b>${p.ruolo === 'titolare' ? ' <span class="role meta" style="display:inline">· titolare</span>' : ''}<span class="meta">${dett}</span></div><div class="tot"><b>${c.goduti}</b><span>goduti</span></div><span class="chev" aria-hidden="true">›</span></summary><ul>${lista}</ul></details>`;
   }).join('');
@@ -1442,7 +1347,7 @@ function signedIn(user, isAdmin){
   me = user; admin = isAdmin;
   refreshMe();
   $('fab').hidden = false;
-  setTab(!admin && (tab === 'dec' || tab === 'rie' || tab === 'p104' || tab === 'ges') ? 'cal' : tab);
+  setTab(!admin && (tab === 'dec' || tab === 'rie' || tab === 'ges') ? 'cal' : tab);
 }
 function refreshMe(){
   if(!me) return;
@@ -1483,9 +1388,8 @@ function startDemo(){
   R = saved.R; STAFF = saved.STAFF; BLOCCHI = saved.BLOCCHI;
   if(!saved.EVENTI){ const y = new Date().getFullYear(); saved.EVENTI = [{ id:'e1', titolo:'Serata tiki', dal: addDays(TODAY(), 3), al: addDays(TODAY(), 3), ora:'19:00', oraFine:'', note:'Inizio alle 19, servono due persone al bancone.', eventoId:'demo' }]; }
   EVENTI = saved.EVENTI;
-  PERMESSI = saved.PERMESSI || [];
   const allNote = saved.NOTE;
-  const save = () => lsSet(KEY, JSON.stringify({ R, NOTE: allNote, STAFF, BLOCCHI, EVENTI, PERMESSI, role: saved.role }));
+  const save = () => lsSet(KEY, JSON.stringify({ R, NOTE: allNote, STAFF, BLOCCHI, EVENTI, role: saved.role }));
   const visNote = () => admin ? allNote : Object.fromEntries(Object.entries(allNote).filter(([id]) => R.find(r => r.id === id && isMine(r))));
   const login = () => {
     const isAdmin = saved.role === 'admin';
@@ -1505,8 +1409,6 @@ function startDemo(){
     addEvento: async e => { EVENTI = [...EVENTI, { ...e, id: id() }]; after(); },
     updEvento: async (eid, patch) => { EVENTI = EVENTI.map(e => e.id === eid ? { ...e, ...patch } : e); after(); },
     delEvento: async eid => { EVENTI = EVENTI.filter(e => e.id !== eid); after(); },
-    addPermesso: async p => { PERMESSI = [...PERMESSI, { ...p, id: id() }]; after(); },
-    delPermesso: async pid => { PERMESSI = PERMESSI.filter(p => p.id !== pid); after(); },
     addBlocco: async b => { BLOCCHI = [...BLOCCHI, { ...b, id: id() }]; after(); },
     delBlocco: async bid => { BLOCCHI = BLOCCHI.filter(b => b.id !== bid); after(); },
     setPersona: async (email, p) => { STAFF = { ...STAFF, [email]: p }; after(); },
@@ -1539,7 +1441,6 @@ async function startFirebase(){
     const staffC = S.collection(db, 'ferie_staff');
     const blkC = S.collection(db, 'ferie_blocchi');
     const evC = S.collection(db, 'ferie_eventi');
-    const permC = S.collection(db, 'ferie_permessi');
     const nice = e => new Error(e && e.code === 'permission-denied' ? 'permesso negato' : (e && e.message) || 'controlla la connessione');
     const run = async p => { try{ return await p; }catch(e){ throw nice(e); } };
 
@@ -1608,8 +1509,6 @@ async function startFirebase(){
       addEvento: e => run(S.addDoc(evC, e)),
       updEvento: (id, patch) => run(S.updateDoc(S.doc(evC, id), patch)),
       delEvento: id => run(S.deleteDoc(S.doc(evC, id))),
-      addPermesso: p => run(S.addDoc(permC, p)),
-      delPermesso: id => run(S.deleteDoc(S.doc(permC, id))),
       delEvent: id => calFetch('/' + encodeURIComponent(id), { method:'DELETE' }),
       addBlocco: b => run(S.addDoc(blkC, b)),
       delBlocco: id => run(S.deleteDoc(S.doc(blkC, id))),
@@ -1637,7 +1536,7 @@ async function startFirebase(){
     A.onAuthStateChanged(auth, async user => {
       unsubs.forEach(u => u()); unsubs = []; calTok = null;
       closeSheets();
-      if(!user){ me = null; R = []; NOTE = {}; STAFF = {}; BLOCCHI = []; EVENTI = []; PERMESSI = []; $('fab').hidden = true; gate('login'); return; }
+      if(!user){ me = null; R = []; NOTE = {}; STAFF = {}; BLOCCHI = []; EVENTI = []; $('fab').hidden = true; gate('login'); return; }
       gate('loading', 'Carico le ferie…');
       // Sono un titolare? Lo dicono le regole di Firestore: solo i titolari possono leggere ferie_ruoli/titolare.
       let isAdmin = false;
@@ -1655,7 +1554,6 @@ async function startFirebase(){
       unsubs.push(S.onSnapshot(staffC, snap => { STAFF = Object.fromEntries(snap.docs.map(d => [d.id, d.data()])); refreshMe(); render(); }, () => {}));
       unsubs.push(S.onSnapshot(blkC, snap => { BLOCCHI = snap.docs.map(d => ({ ...d.data(), id: d.id })); render(); }, () => {}));
       unsubs.push(S.onSnapshot(evC, snap => { EVENTI = snap.docs.map(d => ({ ...d.data(), id: d.id })); render(); }, () => {}));
-      unsubs.push(S.onSnapshot(permC, snap => { PERMESSI = snap.docs.map(d => ({ ...d.data(), id: d.id })); render(); }, () => {}));
       const nq = isAdmin ? notes : S.query(notes, S.where('uid', '==', user.uid));
       unsubs.push(S.onSnapshot(nq, snap => { NOTE = Object.fromEntries(snap.docs.map(d => [d.id, d.data().testo])); render(); }, () => {}));
     });
